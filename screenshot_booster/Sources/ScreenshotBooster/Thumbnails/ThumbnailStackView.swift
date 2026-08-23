@@ -8,35 +8,52 @@ struct ThumbnailStackView: View {
 
     private var width: CGFloat { CGFloat(settings.thumbnailWidth) }
 
-    /// Newest shots sit closest to the anchored corner.
+    /// The newest shot always sits closest to the anchored corner: at the bottom
+    /// of the stack for the bottom corners, at the top for the top corners.
     private var orderedScreenshots: [Screenshot] {
-        settings.panelCorner.stackGrowsUpwards ? library.screenshots.reversed() : library.screenshots
+        settings.panelCorner.stackGrowsUpwards ? library.screenshots : library.screenshots.reversed()
     }
 
+    /// The shot the stack should keep in view when a new one arrives.
+    private var newestID: UUID? { library.screenshots.last?.id }
+
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: ThumbnailGeometry.spacing) {
-                if library.screenshots.count > 1, !settings.panelCorner.stackGrowsUpwards {
-                    header
+        ScrollViewReader { proxy in
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: ThumbnailGeometry.spacing) {
+                    // The header goes at the far end from the anchored corner so
+                    // the cards themselves stay closest to the screen edge.
+                    if showsHeader, settings.panelCorner.stackGrowsUpwards { header }
+
+                    ForEach(orderedScreenshots) { screenshot in
+                        ThumbnailItemView(screenshot: screenshot, width: width, actions: actions)
+                            .id(screenshot.id)
+                            .transition(.asymmetric(
+                                insertion: .scale(scale: 0.82).combined(with: .opacity),
+                                removal: .scale(scale: 0.9).combined(with: .opacity)
+                            ))
+                    }
+
+                    if showsHeader, !settings.panelCorner.stackGrowsUpwards { header }
                 }
-                ForEach(orderedScreenshots) { screenshot in
-                    ThumbnailItemView(screenshot: screenshot, width: width, actions: actions)
-                        .transition(.asymmetric(
-                            insertion: .scale(scale: 0.82).combined(with: .opacity),
-                            removal: .scale(scale: 0.9).combined(with: .opacity)
-                        ))
-                }
-                if library.screenshots.count > 1, settings.panelCorner.stackGrowsUpwards {
-                    header
+                .padding(ThumbnailGeometry.padding)
+                .frame(width: width + ThumbnailGeometry.padding * 2, alignment: .leading)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .animation(.spring(response: 0.34, dampingFraction: 0.78), value: library.screenshots.map(\.id))
+            .background(Color.clear)
+            .onChange(of: newestID) { _, id in
+                // Once the stack is taller than the screen it scrolls; the shot
+                // that was just taken must stay visible.
+                guard let id else { return }
+                withAnimation(.easeOut(duration: 0.25)) {
+                    proxy.scrollTo(id, anchor: settings.panelCorner.stackGrowsUpwards ? .bottom : .top)
                 }
             }
-            .padding(ThumbnailGeometry.padding)
-            .frame(width: width + ThumbnailGeometry.padding * 2, alignment: .leading)
         }
-        .scrollBounceBehavior(.basedOnSize)
-        .animation(.spring(response: 0.34, dampingFraction: 0.78), value: library.screenshots.map(\.id))
-        .background(Color.clear)
     }
+
+    private var showsHeader: Bool { library.screenshots.count > 1 }
 
     private var header: some View {
         HStack(spacing: 6) {

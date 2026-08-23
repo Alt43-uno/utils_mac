@@ -27,12 +27,19 @@ final class SelectionOverlayController: NSObject, SelectionOverlayViewDelegate {
 
         for snapshot in snapshots {
             let window = OverlayWindow(screen: snapshot.screen)
+            let bounds = CGRect(origin: .zero, size: snapshot.frame.size)
+
+            let backdrop = OverlayBackdropView(image: snapshot.image, frame: bounds)
+            backdrop.autoresizingMask = [.width, .height]
+
             let view = SelectionOverlayView(snapshot: snapshot, mode: mode)
             view.delegate = self
             view.setWindowTargets(targets)
-            view.frame = CGRect(origin: .zero, size: snapshot.frame.size)
+            view.frame = bounds
             view.autoresizingMask = [.width, .height]
-            window.contentView = view
+
+            backdrop.addSubview(view)
+            window.contentView = backdrop
             window.orderFrontRegardless()
             windows.append(window)
             views.append(view)
@@ -69,9 +76,11 @@ final class SelectionOverlayController: NSObject, SelectionOverlayViewDelegate {
 
     private func finish(with selection: Selection?) {
         dismiss()
-        // Hand focus back to whatever the user was working in; the app is an
-        // accessory and should never linger in the foreground.
-        if selection == nil, let previousApplication, previousApplication.processIdentifier != ProcessInfo.processInfo.processIdentifier {
+        // Hand focus back to whatever the user was working in. The app is an
+        // accessory: after the overlay closes it has no reason to stay frontmost,
+        // whether the capture succeeded or was cancelled.
+        if let previousApplication,
+           previousApplication.processIdentifier != ProcessInfo.processInfo.processIdentifier {
             previousApplication.activate()
         }
         previousApplication = nil

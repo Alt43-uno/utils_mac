@@ -27,18 +27,22 @@ final class ThumbnailStackController {
         observe()
     }
 
-    deinit {
-        // Panels are not released when closed; drop ours explicitly.
-        MainActor.assumeIsolated {
-            panel?.orderOut(nil)
-            panel?.contentView = nil
-        }
-    }
-
     // MARK: - Public
 
     func start() {
         refresh()
+    }
+
+    /// Explicit teardown at quit: panels are not released when closed, and the
+    /// hosting view keeps SwiftUI state alive until it is detached.
+    func tearDown() {
+        cancellables.removeAll()
+        hostingView?.removeFromSuperview()
+        hostingView = nil
+        panel?.contentView = nil
+        panel?.orderOut(nil)
+        panel?.close()
+        panel = nil
     }
 
     func noteCapture(on screen: NSScreen?) {
@@ -115,6 +119,7 @@ final class ThumbnailStackController {
         // Let clicks fall through the transparent gaps between cards.
         hosting.layer?.backgroundColor = NSColor.clear.cgColor
         container.addSubview(hosting)
+        container.passthroughView = hosting
 
         panel.contentView = container
         self.panel = panel

@@ -37,8 +37,18 @@ final class ThumbnailPanel: NSPanel {
 
 /// Container whose empty areas let clicks through to whatever is underneath.
 final class PassthroughContainerView: NSView {
+    /// The hosted SwiftUI view. Hits that land on it but not on any of its
+    /// content count as misses, so the transparent gaps between thumbnail cards
+    /// stay click-through for the app underneath.
+    weak var passthroughView: NSView?
+
     override func hitTest(_ point: NSPoint) -> NSView? {
-        let hit = super.hitTest(point)
-        return hit === self ? nil : hit
+        guard let hit = super.hitTest(point) else { return nil }
+        if hit === self || hit === passthroughView { return nil }
+        // A hit on pure scaffolding — the hosting view itself or the scroll
+        // view's clipping machinery — means the click landed in the empty space
+        // between cards, so it belongs to whatever is underneath the panel.
+        if hit is NSClipView || hit is NSScrollView || hit is NSVisualEffectView { return nil }
+        return hit
     }
 }

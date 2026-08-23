@@ -2,10 +2,10 @@ import AppKit
 import UniformTypeIdentifiers
 
 /// Writes flattened screenshots to disk, including the Save As panel.
-@MainActor
 enum ExportService {
 
     /// Writes `image` to `url`, creating intermediate folders when needed.
+    /// Deliberately not main-actor bound: captures save in the background.
     static func write(_ image: CGImage, to url: URL, format: ImageFormat, quality: Double) throws {
         let data = try ImageUtilities.encode(image, format: format, quality: quality)
         do {
@@ -18,18 +18,40 @@ enum ExportService {
         }
     }
 
+    /// Everything `saveToConfiguredFolder` needs, captured up front so the write
+    /// itself can happen off the main actor.
+    struct Destination: Sendable {
+        let directory: URL
+        let format: ImageFormat
+        let quality: Double
+
+        @MainActor
+        init(settings: SettingsStore) {
+            directory = settings.saveDirectory
+            format = settings.imageFormat
+            quality = settings.exportQuality
+        }
+    }
+
     /// Saves into the configured folder using an automatic, non-colliding name.
+    @discardableResult
+    static func save(_ image: CGImage, date: Date, to destination: Destination) throws -> URL {
+        let name = AppPaths.suggestedFileName(for: date, format: destination.format)
+        let target = AppPaths.uniqueURL(for: destination.directory.appendingPathComponent(name))
+        try write(image, to: target, format: destination.format, quality: destination.quality)
+        return target
+    }
+
+    @MainActor
     @discardableResult
     static func saveToConfiguredFolder(_ image: CGImage,
                                        date: Date,
                                        settings: SettingsStore) throws -> URL {
-        let name = AppPaths.suggestedFileName(for: date, format: settings.imageFormat)
-        let target = AppPaths.uniqueURL(for: settings.saveDirectory.appendingPathComponent(name))
-        try write(image, to: target, format: settings.imageFormat, quality: settings.exportQuality)
-        return target
+        try save(image, date: date, to: Destination(settings: settings))
     }
 
     /// Presents the Save As panel. Returns `nil` when the user cancels.
+    @MainActor
     static func runSavePanel(image: CGImage,
                              suggestedName: String,
                              directory: URL,
@@ -54,6 +76,7 @@ enum ExportService {
     }
 
     /// Reveals a file in Finder, falling back to opening its folder.
+    @MainActor
     static func reveal(_ url: URL) {
         if FileManager.default.fileExists(atPath: url.path) {
             NSWorkspace.shared.activateFileViewerSelecting([url])

@@ -16,6 +16,9 @@ final class ScreenshotLibrary: ObservableObject {
     private let effects = EffectCache()
     private let baseImageCache = LRUCache<UUID, CGImage>(capacity: 6)
     private var thumbnailCache: [UUID: NSImage] = [:]
+    /// Bitmaps whose PNG is still being written in the background. Held strongly
+    /// so they can never be evicted before they exist on disk.
+    private var pendingWrites: [UUID: CGImage] = [:]
     private var saveWorkItem: DispatchWorkItem?
 
     init(settings: SettingsStore) {
@@ -51,7 +54,11 @@ final class ScreenshotLibrary: ObservableObject {
 
     // MARK: - Mutations
 
-    /// Persists a freshly captured bitmap and pins it.
+    /// Pins a freshly captured bitmap.
+    ///
+    /// Encoding a full-resolution PNG costs 100 ms or more, which would show up
+    /// as a stutter right after the shutter, so the write happens in the
+    /// background while the bitmap stays available in memory.
     @discardableResult
     func add(image: CGImage, scale: CGFloat, mode: CaptureMode, sourceName: String?) throws -> Screenshot {
         try AppPaths.prepareDirectories()
@@ -59,12 +66,6 @@ final class ScreenshotLibrary: ObservableObject {
         let id = UUID()
         let fileName = "\(id.uuidString).png"
         let url = AppPaths.originalsDirectory.appendingPathComponent(fileName)
-        let data = try ImageUtilities.encode(image, format: .png)
-        do {
-            try data.write(to: url, options: .atomic)
-        } catch {
-            throw AppError.fileWriteFailed(url: url, underlying: error.localizedDescription)
-        }
 
         let screenshot = Screenshot(id: id,
                                     fileName: fileName,
@@ -74,8 +75,28 @@ final class ScreenshotLibrary: ObservableObject {
                                     mode: mode,
                                     sourceName: sourceName)
         baseImageCache[id] = image
+        pendingWrites[id] = image
         screenshots.append(screenshot)
         persist()
+
+        Task.detached(priority: .userInitiated) {
+            let failure: AppError? = {
+                do {
+                    let data = try ImageUtilities.encode(image, format: .png)
+                    try data.write(to: url, options: .atomic)
+                    return nil
+                } catch {
+                    return AppError.fileWriteFailed(url: url, underlying: error.localizedDescription)
+                }
+            }()
+            await MainActor.run { [weak self] in
+                self?.pendingWrites.removeValue(forKey: id)
+                if let failure {
+                    Log.storage.error("Could not store the capture: \(failure.localizedDescription, privacy: .public)")
+                    ErrorPresenter.present(failure)
+                }
+            }
+        }
         return screenshot
     }
 
@@ -91,6 +112,7 @@ final class ScreenshotLibrary: ObservableObject {
         let screenshot = screenshots.remove(at: index)
         thumbnailCache[id] = nil
         baseImageCache[id] = nil
+        pendingWrites.removeValue(forKey: id)
         try? FileManager.default.removeItem(at: originalURL(for: screenshot))
         removeDragFiles(for: id, except: AppPaths.dragCacheDirectory)
         persist()
@@ -101,6 +123,7 @@ final class ScreenshotLibrary: ObservableObject {
         screenshots.removeAll()
         thumbnailCache.removeAll()
         baseImageCache.removeAll()
+        pendingWrites.removeAll()
         for screenshot in all {
             try? FileManager.default.removeItem(at: originalURL(for: screenshot))
         }
@@ -118,6 +141,7 @@ final class ScreenshotLibrary: ObservableObject {
     }
 
     func baseImage(for screenshot: Screenshot) throws -> CGImage {
+        if let pending = pendingWrites[screenshot.id] { return pending }
         if let cached = baseImageCache[screenshot.id] { return cached }
         let image = try ImageUtilities.loadImage(at: originalURL(for: screenshot))
         baseImageCache[screenshot.id] = image
@@ -147,8 +171,12 @@ final class ScreenshotLibrary: ObservableObject {
         let cgImage: CGImage?
         if screenshot.hasEdits {
             cgImage = (try? flattenedImage(for: screenshot)).map { ImageUtilities.downscale($0, maxPixelSize: maxPixelSize) }
+        } else if let inMemory = pendingWrites[screenshot.id] ?? baseImageCache[screenshot.id] {
+            // Straight after a capture the bitmap is still in memory, so the
+            // thumbnail never has to wait for the disk.
+            cgImage = ImageUtilities.downscale(inMemory, maxPixelSize: maxPixelSize)
         } else {
-            // Fast path: let ImageIO decode a reduced bitmap straight from disk.
+            // Otherwise let ImageIO decode a reduced bitmap directly from disk.
             cgImage = ImageUtilities.loadThumbnail(at: originalURL(for: screenshot), maxPixelSize: Int(maxPixelSize))
         }
         guard let cgImage else { return nil }
@@ -234,10 +262,24 @@ final class ScreenshotLibrary: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
     }
 
-    /// Flushes any pending write immediately — used on termination.
+    /// Flushes everything immediately — used on termination.
     func persistNow() {
         saveWorkItem?.cancel()
         saveWorkItem = nil
+
+        // Finish any background bitmap writes so restored pins are not dangling.
+        for (id, image) in pendingWrites {
+            guard let screenshot = screenshot(with: id) else { continue }
+            do {
+                let data = try ImageUtilities.encode(image, format: .png)
+                try data.write(to: originalURL(for: screenshot), options: .atomic)
+            } catch {
+                Log.storage.error("Could not flush a pending capture: \(error.localizedDescription, privacy: .public)")
+                screenshots.removeAll { $0.id == id }
+            }
+        }
+        pendingWrites.removeAll()
+
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

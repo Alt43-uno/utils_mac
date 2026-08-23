@@ -4,6 +4,7 @@ import AppKit
 /// message plus an optional recovery hint.
 enum AppError: LocalizedError {
     case screenRecordingPermissionDenied
+    case screenRecordingNeedsRelaunch
     case noDisplaysAvailable
     case captureFailed(underlying: String)
     case cancelled
@@ -17,6 +18,8 @@ enum AppError: LocalizedError {
         switch self {
         case .screenRecordingPermissionDenied:
             return "Screen Recording permission is required"
+        case .screenRecordingNeedsRelaunch:
+            return "Screenshot Booster has to be reopened"
         case .noDisplaysAvailable:
             return "No displays are available for capture"
         case .captureFailed(let underlying):
@@ -40,6 +43,8 @@ enum AppError: LocalizedError {
         switch self {
         case .screenRecordingPermissionDenied:
             return "Open System Settings › Privacy & Security › Screen & System Audio Recording and enable Screenshot Booster."
+        case .screenRecordingNeedsRelaunch:
+            return "macOS only hands a new Screen Recording permission to an app when it launches."
         case .hotkeyRegistrationFailed:
             return "Another application may already use this shortcut. Pick a different combination in Settings › Shortcuts."
         case .fileWriteFailed:

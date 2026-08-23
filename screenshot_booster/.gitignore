@@ -1,0 +1,15 @@
+# Build products
+build/
+.build/
+*.o
+*.dSYM/
+
+# Generated assets (recreated by Scripts/build_app.sh)
+Resources/AppIcon.icns
+
+# macOS
+.DS_Store
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/

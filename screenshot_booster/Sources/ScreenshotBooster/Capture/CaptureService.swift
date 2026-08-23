@@ -21,12 +21,22 @@ final class CaptureService {
         do {
             return try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
         } catch {
-            // The most common failure here is a revoked TCC permission.
-            if !CGPreflightScreenCaptureAccess() {
-                throw AppError.screenRecordingPermissionDenied
-            }
-            throw AppError.captureFailed(underlying: error.localizedDescription)
+            throw Self.mapped(error)
         }
+    }
+
+    /// ScreenCaptureKit reports a missing permission as `userDeclined` (-3801).
+    /// If the system says the permission *is* granted, this process simply
+    /// started before the grant and has to be relaunched.
+    private static func mapped(_ error: Error) -> AppError {
+        // -3801 is SCStreamError.userDeclined.
+        let looksLikePermission = (error as NSError).code == -3801
+        let granted = CGPreflightScreenCaptureAccess()
+
+        guard looksLikePermission || !granted else {
+            return .captureFailed(underlying: error.localizedDescription)
+        }
+        return granted ? .screenRecordingNeedsRelaunch : .screenRecordingPermissionDenied
     }
 
     /// Windows that make sense as capture targets, front-most first.
@@ -105,7 +115,7 @@ final class CaptureService {
             return try await SCScreenshotManager.captureImage(contentFilter: filter,
                                                               configuration: configuration)
         } catch {
-            throw AppError.captureFailed(underlying: error.localizedDescription)
+            throw Self.mapped(error)
         }
     }
 

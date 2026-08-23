@@ -14,6 +14,11 @@ final class CaptureCoordinator {
     private let captureService: CaptureService
     private let overlay = SelectionOverlayController()
     private var isCapturing = false
+    /// Guards against the same shortcut arriving twice — once as a global hot
+    /// key and once as the menu bar item's key equivalent while the app is
+    /// frontmost.
+    private var lastRequestAt: Date = .distantPast
+    private let repeatThreshold: TimeInterval = 0.35
 
     init(settings: SettingsStore, library: ScreenshotLibrary, captureService: CaptureService) {
         self.settings = settings
@@ -29,19 +34,19 @@ final class CaptureCoordinator {
 
     /// Entry point used by hotkeys and menu items.
     func capture(_ mode: CaptureMode) {
-        guard !isCapturing else {
-            // A second trigger while the overlay is up should dismiss it rather
-            // than stack another overlay on top.
-            overlay.cancelIfPresenting()
-            return
-        }
+        let now = Date()
+        guard now.timeIntervalSince(lastRequestAt) > repeatThreshold else { return }
+        lastRequestAt = now
+        // While a selection overlay is up, Escape (or a click) is the way out —
+        // stacking a second overlay would only confuse things.
+        guard !isCapturing else { return }
         Task { await performCapture(mode) }
     }
 
     // MARK: - Flow
 
     private func performCapture(_ mode: CaptureMode) async {
-        guard ScreenPermission.ensureGranted() else { return }
+        guard ScreenPermission.ensureGranted(settings: settings) else { return }
         isCapturing = true
         defer { isCapturing = false }
 
@@ -54,6 +59,19 @@ final class CaptureCoordinator {
             }
         } catch {
             overlay.dismiss()
+            report(error)
+        }
+    }
+
+    /// Permission problems get their own actionable alerts rather than the
+    /// generic error sheet.
+    private func report(_ error: Error) {
+        switch error as? AppError {
+        case .screenRecordingNeedsRelaunch:
+            ScreenPermission.presentRelaunchAlert()
+        case .screenRecordingPermissionDenied:
+            ScreenPermission.presentDeniedAlert()
+        default:
             ErrorPresenter.present(error)
         }
     }
@@ -105,22 +123,30 @@ final class CaptureCoordinator {
                         mode: CaptureMode,
                         sourceName: String?,
                         screen: NSScreen?) throws {
-        var screenshot = try library.add(image: image, scale: scale, mode: mode, sourceName: sourceName)
+        let screenshot = try library.add(image: image, scale: scale, mode: mode, sourceName: sourceName)
 
         if settings.copyToClipboardAfterCapture {
             PasteboardService.copy(image: image)
         }
 
         if settings.autoSaveToDisk {
-            do {
-                let url = try ExportService.saveToConfiguredFolder(image,
-                                                                   date: screenshot.createdAt,
-                                                                   settings: settings)
-                screenshot.lastSavedPath = url.path
-                library.update(screenshot)
-            } catch {
-                // The shot is already pinned — surface the problem but keep it.
-                ErrorPresenter.present(error)
+            // Encoding happens off the main actor so the shutter stays snappy.
+            let destination = ExportService.Destination(settings: settings)
+            let identifier = screenshot.id
+            let date = screenshot.createdAt
+            let library = self.library
+            Task.detached(priority: .utility) {
+                do {
+                    let url = try ExportService.save(image, date: date, to: destination)
+                    await MainActor.run {
+                        guard var stored = library.screenshot(with: identifier) else { return }
+                        stored.lastSavedPath = url.path
+                        library.update(stored)
+                    }
+                } catch {
+                    // The shot is already pinned — surface the problem but keep it.
+                    await MainActor.run { ErrorPresenter.present(error) }
+                }
             }
         }
 

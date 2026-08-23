@@ -34,12 +34,16 @@ struct KeyCombo: Codable, Equatable, Hashable {
     }
 
     var displayString: String {
+        Self.modifierString(modifiers) + KeyCodeNames.name(for: keyCode)
+    }
+
+    /// The ⌃⌥⇧⌘ prefix on its own, in the order macOS uses.
+    static func modifierString(_ modifiers: NSEvent.ModifierFlags) -> String {
         var result = ""
         if modifiers.contains(.control) { result += "⌃" }
         if modifiers.contains(.option) { result += "⌥" }
         if modifiers.contains(.shift) { result += "⇧" }
         if modifiers.contains(.command) { result += "⌘" }
-        result += KeyCodeNames.name(for: keyCode)
         return result
     }
 

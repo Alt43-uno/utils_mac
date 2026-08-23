@@ -23,6 +23,7 @@ final class SettingsStore: ObservableObject {
         static let excludeOwnWindows = "excludeOwnWindowsFromCapture"
         static let showsCursor = "showsCursorInCaptures"
         static let hasCompletedFirstRun = "hasCompletedFirstRun"
+        static let hasRequestedScreenPermission = "hasRequestedScreenPermission"
     }
 
     private let defaults: UserDefaults
@@ -85,6 +86,13 @@ final class SettingsStore: ObservableObject {
     var hasCompletedFirstRun: Bool {
         get { defaults.bool(forKey: Key.hasCompletedFirstRun) }
         set { defaults.set(newValue, forKey: Key.hasCompletedFirstRun) }
+    }
+
+    /// Whether the system Screen Recording prompt has already been triggered
+    /// once — macOS only shows it the first time.
+    var hasRequestedScreenPermission: Bool {
+        get { defaults.bool(forKey: Key.hasRequestedScreenPermission) }
+        set { defaults.set(newValue, forKey: Key.hasRequestedScreenPermission) }
     }
 
     // MARK: - Init

@@ -90,7 +90,7 @@ enum AnnotationRenderer {
             if annotation.isFilled {
                 context.fill(rect)
             } else {
-                context.stroke(rect.insetBy(dx: annotation.lineWidth / 2, dy: annotation.lineWidth / 2))
+                context.stroke(strokeAligned(rect, lineWidth: annotation.lineWidth))
             }
 
         case .ellipse:
@@ -98,7 +98,7 @@ enum AnnotationRenderer {
             if annotation.isFilled {
                 context.fillEllipse(in: rect)
             } else {
-                context.strokeEllipse(in: rect.insetBy(dx: annotation.lineWidth / 2, dy: annotation.lineWidth / 2))
+                context.strokeEllipse(in: strokeAligned(rect, lineWidth: annotation.lineWidth))
             }
 
         case .text:
@@ -117,6 +117,13 @@ enum AnnotationRenderer {
     }
 
     // MARK: - Geometry helpers
+
+    /// Insets a rect by half the stroke width so the drawn outline sits inside
+    /// the dragged bounds, without collapsing shapes thinner than the stroke.
+    private static func strokeAligned(_ rect: CGRect, lineWidth: CGFloat) -> CGRect {
+        let inset = min(max(lineWidth, 1) / 2, min(rect.width, rect.height) / 2)
+        return rect.insetBy(dx: inset, dy: inset)
+    }
 
     /// Smoothed path through the sampled points of a freehand stroke.
     static func strokePath(for annotation: Annotation, closed: Bool = false) -> CGPath? {
