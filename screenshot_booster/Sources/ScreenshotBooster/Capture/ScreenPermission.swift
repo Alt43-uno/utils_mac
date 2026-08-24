@@ -72,27 +72,33 @@ enum ScreenPermission {
     // MARK: - Alerts
 
     /// Shown when the app is not allowed to record the screen.
+    ///
+    /// "Quit and Reopen" comes first on purpose: by far the most confusing case
+    /// is having already allowed the app and being asked again, and reopening is
+    /// what actually fixes it.
     static func presentDeniedAlert() {
         let alert = NSAlert()
         alert.alertStyle = .warning
-        alert.messageText = "Screenshot Booster needs Screen Recording permission"
+        alert.messageText = "Screenshot Booster can't record the screen yet"
         alert.informativeText = """
-        Enable Screenshot Booster under Privacy & Security › Screen & System Audio Recording.
+        1. Allow Screenshot Booster in System Settings › Privacy & Security › \
+        Screen & System Audio Recording.
+        2. Reopen Screenshot Booster — macOS hands the permission to an app only \
+        when it launches.
 
-        macOS only applies the permission to a freshly launched app, so reopen \
-        Screenshot Booster once you have enabled it.
+        Already allowed it and still being asked? Step 2 is the missing one.
         """
-        alert.addButton(withTitle: "Open System Settings")
         alert.addButton(withTitle: "Quit and Reopen")
+        alert.addButton(withTitle: "Open System Settings")
         alert.addButton(withTitle: "Cancel")
 
         NSApp.activate(ignoringOtherApps: true)
         switch alert.runModal() {
         case .alertFirstButtonReturn:
+            relaunch()
+        case .alertSecondButtonReturn:
             openSystemSettings()
             beginWatchingForGrant()
-        case .alertSecondButtonReturn:
-            relaunch()
         default:
             break
         }

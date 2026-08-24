@@ -35,7 +35,18 @@ renders the app icon, signs the bundle ad-hoc and launches it.
 | *(none)* | Optimised build for this Mac's architecture |
 | `--debug` | Unoptimised build with debug symbols |
 | `--universal` | Fat binary for Apple silicon and Intel |
-| `--run` | Launch when the build finishes |
+| `--install` | Replace `/Applications/Screenshot Booster.app` |
+| `--run` | Launch when the build finishes (the installed copy if `--install` was used) |
+
+For day-to-day use, install rather than running out of `build/`:
+
+```bash
+./Scripts/build_app.sh --install --run
+```
+
+Keeping a single copy matters more than it sounds: two bundles with the same
+identifier at different paths each get their own Screen Recording grant, which
+shows up as the app asking for permission over and over.
 
 The app has no Dock icon — look for the camera icon in the menu bar.
 
@@ -101,9 +112,15 @@ corner. They stay until you dismiss them and they come back after a restart.
 | Gesture | Result |
 | --- | --- |
 | Click | Open the editor |
+| Two-finger swipe left | Dismiss the thumbnail |
 | ✕ | Remove the thumbnail |
 | Drag | Drop the image into Telegram, Discord, Finder, a browser… |
 | Right click | Copy · Save · Save As… · Reveal in Finder · Delete · Clear All |
+
+The swipe follows your fingers and only commits past roughly a third of the
+card's width, so a stray gesture springs back. It is read from trackpad scroll
+events rather than a drag, which leaves dragging a screenshot out to another app
+untouched — and a mouse wheel can never throw a screenshot away.
 
 The panel is a non-activating floating panel: it never takes focus, follows you
 across Spaces and full-screen apps, and clicks fall straight through the gaps

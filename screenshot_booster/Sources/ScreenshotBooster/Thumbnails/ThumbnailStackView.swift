@@ -4,6 +4,7 @@ import SwiftUI
 struct ThumbnailStackView: View {
     @ObservedObject var library: ScreenshotLibrary
     @ObservedObject var settings: SettingsStore
+    @ObservedObject var interaction: ThumbnailInteractionModel
     let actions: ThumbnailActions
 
     private var width: CGFloat { CGFloat(settings.thumbnailWidth) }
@@ -11,7 +12,7 @@ struct ThumbnailStackView: View {
     /// The newest shot always sits closest to the anchored corner: at the bottom
     /// of the stack for the bottom corners, at the top for the top corners.
     private var orderedScreenshots: [Screenshot] {
-        settings.panelCorner.stackGrowsUpwards ? library.screenshots : library.screenshots.reversed()
+        ThumbnailGeometry.orderedScreenshots(library.screenshots, corner: settings.panelCorner)
     }
 
     /// The shot the stack should keep in view when a new one arrives.
@@ -26,7 +27,10 @@ struct ThumbnailStackView: View {
                     if showsHeader, settings.panelCorner.stackGrowsUpwards { header }
 
                     ForEach(orderedScreenshots) { screenshot in
-                        ThumbnailItemView(screenshot: screenshot, width: width, actions: actions)
+                        ThumbnailItemView(screenshot: screenshot,
+                                          width: width,
+                                          actions: actions,
+                                          interaction: interaction)
                             .id(screenshot.id)
                             .transition(.asymmetric(
                                 insertion: .scale(scale: 0.82).combined(with: .opacity),

@@ -7,8 +7,12 @@ struct ThumbnailItemView: View {
     let screenshot: Screenshot
     let width: CGFloat
     let actions: ThumbnailActions
+    @ObservedObject var interaction: ThumbnailInteractionModel
 
     @State private var isHovering = false
+
+    /// How far this card has been swiped, if it is the one being swiped.
+    private var swipeOffset: CGFloat { interaction.offset(for: screenshot.id) }
 
     private var height: CGFloat {
         ThumbnailGeometry.cardHeight(for: screenshot, width: width)
@@ -21,6 +25,8 @@ struct ThumbnailItemView: View {
                 .padding(5)
         }
         .frame(width: width, height: height)
+        .offset(x: swipeOffset)
+        .opacity(1 - min(abs(swipeOffset) / 220, 0.8))
         .onHover { hovering in
             withAnimation(.easeOut(duration: 0.12)) { isHovering = hovering }
         }
@@ -142,6 +148,6 @@ struct ThumbnailItemView: View {
     }
 
     private var helpText: String {
-        "\(screenshot.displayTitle) · \(screenshot.dimensionsLabel)\nClick to edit, drag to share"
+        "\(screenshot.displayTitle) · \(screenshot.dimensionsLabel)\nClick to edit · drag to share · swipe left to dismiss"
     }
 }

@@ -13,6 +13,17 @@ final class ThumbnailStackController {
 
     private var panel: ThumbnailPanel?
     private var hostingView: NSHostingView<ThumbnailStackView>?
+    private let interaction = ThumbnailInteractionModel()
+    private lazy var swipeRecognizer = ThumbnailSwipeRecognizer(
+        model: interaction,
+        layout: { [weak self] in
+            guard let self else { return ThumbnailGeometry.Layout(size: .zero, cardRects: []) }
+            return ThumbnailGeometry.layout(for: self.library.screenshots,
+                                            width: CGFloat(self.settings.thumbnailWidth),
+                                            corner: self.settings.panelCorner)
+        },
+        dismiss: { [weak self] id in self?.library.remove(id: id) }
+    )
     private var cancellables: Set<AnyCancellable> = []
     /// Screen the most recent capture came from, used by the `captureScreen`
     /// placement policy.
@@ -36,6 +47,7 @@ final class ThumbnailStackController {
     /// Explicit teardown at quit: panels are not released when closed, and the
     /// hosting view keeps SwiftUI state alive until it is detached.
     func tearDown() {
+        swipeRecognizer.detach()
         cancellables.removeAll()
         hostingView?.removeFromSuperview()
         hostingView = nil
@@ -96,7 +108,8 @@ final class ThumbnailStackController {
 
         let visible = screen.visibleFrame
         let content = ThumbnailGeometry.contentSize(for: library.screenshots,
-                                                    width: CGFloat(settings.thumbnailWidth))
+                                                    width: CGFloat(settings.thumbnailWidth),
+                                                    corner: settings.panelCorner)
         let maxHeight = max(120, visible.height - margin * 2)
         let size = CGSize(width: content.width, height: min(content.height, maxHeight))
         let origin = settings.panelCorner.origin(for: size, in: visible, margin: margin)
@@ -112,7 +125,10 @@ final class ThumbnailStackController {
         let container = PassthroughContainerView(frame: panel.contentLayoutRect)
         container.autoresizingMask = [.width, .height]
 
-        let root = ThumbnailStackView(library: library, settings: settings, actions: actions)
+        let root = ThumbnailStackView(library: library,
+                                      settings: settings,
+                                      interaction: interaction,
+                                      actions: actions)
         let hosting = NSHostingView(rootView: root)
         hosting.frame = container.bounds
         hosting.autoresizingMask = [.width, .height]
@@ -124,6 +140,8 @@ final class ThumbnailStackController {
         panel.contentView = container
         self.panel = panel
         self.hostingView = hosting
+        // Two-finger swipe to dismiss a card.
+        swipeRecognizer.attach(to: panel)
         return panel
     }
 

@@ -5,6 +5,7 @@
 #   ./Scripts/build_app.sh              release build for this Mac's architecture
 #   ./Scripts/build_app.sh --debug      unoptimised build with debug info
 #   ./Scripts/build_app.sh --universal  arm64 + x86_64 fat binary
+#   ./Scripts/build_app.sh --install    replace /Applications/Screenshot Booster.app
 #   ./Scripts/build_app.sh --run        launch the app when the build finishes
 #
 set -euo pipefail
@@ -22,6 +23,7 @@ APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
 CONFIGURATION="release"
 UNIVERSAL=0
 RUN_AFTER_BUILD=0
+INSTALL=0
 
 for argument in "$@"; do
     case "$argument" in
@@ -29,7 +31,8 @@ for argument in "$@"; do
         --release) CONFIGURATION="release" ;;
         --universal) UNIVERSAL=1 ;;
         --run) RUN_AFTER_BUILD=1 ;;
-        -h|--help) sed -n '3,10p' "${BASH_SOURCE[0]}"; exit 0 ;;
+        --install) INSTALL=1 ;;
+        -h|--help) sed -n '3,11p' "${BASH_SOURCE[0]}"; exit 0 ;;
         *) echo "Unknown option: $argument" >&2; exit 1 ;;
     esac
 done
@@ -121,8 +124,26 @@ fi
 
 echo "✔ Built $APP_BUNDLE"
 
+# --- Install ----------------------------------------------------------------
+# Running two copies with the same bundle id from different paths gives each its
+# own Screen Recording grant, which reads as "it keeps asking me". Installing
+# replaces the one in /Applications and launches from there.
+LAUNCH_TARGET="$APP_BUNDLE"
+if [ "$INSTALL" -eq 1 ]; then
+    echo "▸ Installing to /Applications…"
+    pkill -x "$EXECUTABLE" >/dev/null 2>&1 || true
+    sleep 1
+    rm -rf "/Applications/$APP_NAME.app"
+    cp -R "$APP_BUNDLE" /Applications/
+    xattr -d -r com.apple.quarantine "/Applications/$APP_NAME.app" 2>/dev/null || true
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+        -f "/Applications/$APP_NAME.app" >/dev/null 2>&1 || true
+    LAUNCH_TARGET="/Applications/$APP_NAME.app"
+    echo "✔ Installed $LAUNCH_TARGET"
+fi
+
 if [ "$RUN_AFTER_BUILD" -eq 1 ]; then
     echo "▸ Launching…"
     pkill -x "$EXECUTABLE" >/dev/null 2>&1 || true
-    open "$APP_BUNDLE"
+    open "$LAUNCH_TARGET"
 fi
