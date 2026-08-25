@@ -12,6 +12,7 @@ enum MainMenuBuilder {
         mainMenu.addItem(applicationMenuItem(target: target))
         mainMenu.addItem(fileMenuItem())
         mainMenu.addItem(editMenuItem())
+        mainMenu.addItem(viewMenuItem())
         mainMenu.addItem(captureMenuItem(target: target))
         mainMenu.addItem(windowMenuItem())
         return mainMenu
@@ -86,6 +87,27 @@ enum MainMenuBuilder {
         menu.addItem(delete)
 
         menu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+
+        let item = NSMenuItem()
+        item.submenu = menu
+        return item
+    }
+
+    private static func viewMenuItem() -> NSMenuItem {
+        let menu = NSMenu(title: "View")
+        menu.addItem(withTitle: "Zoom In",
+                     action: #selector(EditorWindowController.zoomIn(_:)),
+                     keyEquivalent: "+")
+        menu.addItem(withTitle: "Zoom Out",
+                     action: #selector(EditorWindowController.zoomOut(_:)),
+                     keyEquivalent: "-")
+        menu.addItem(.separator())
+        menu.addItem(withTitle: "Actual Size",
+                     action: #selector(EditorWindowController.actualSize(_:)),
+                     keyEquivalent: "0")
+        menu.addItem(withTitle: "Zoom to Fit",
+                     action: #selector(EditorWindowController.zoomToFit(_:)),
+                     keyEquivalent: "9")
 
         let item = NSMenuItem()
         item.submenu = menu

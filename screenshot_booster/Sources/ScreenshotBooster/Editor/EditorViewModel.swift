@@ -22,9 +22,19 @@ final class EditorViewModel: ObservableObject {
     @Published var lineWidth: CGFloat = 4
     @Published var fontSize: CGFloat = 32
     @Published var selectedID: UUID?
+    /// How the document is scaled on screen.
+    @Published var zoomMode: ZoomMode = .fit
+    /// Scale that fits the document in the current window, reported by the canvas.
+    @Published private(set) var fitScale: CGFloat = 1
     @Published private(set) var canUndo = false
     @Published private(set) var canRedo = false
     @Published private(set) var status: StatusMessage?
+
+    /// `fit` follows the window; `factor` is an explicit pixels-to-points scale.
+    enum ZoomMode: Equatable {
+        case fit
+        case factor(CGFloat)
+    }
 
     struct StatusMessage: Equatable {
         let text: String
@@ -69,6 +79,58 @@ final class EditorViewModel: ObservableObject {
         // `Timer.invalidate()`, which must run on the scheduling run loop.
         statusResetWorkItem?.cancel()
         persistWorkItem?.cancel()
+    }
+
+    // MARK: - Zoom
+
+    /// Zoom steps, expressed as a multiple of the image's actual pixel size.
+    private static let zoomLadder: [CGFloat] = [0.1, 0.25, 0.33, 0.5, 0.66, 1, 1.5, 2, 3, 4, 6, 8, 12, 16]
+
+    /// Pixels-to-points factor currently in use.
+    var zoomFactor: CGFloat {
+        if case .factor(let factor) = zoomMode { return factor }
+        return fitScale
+    }
+
+    /// 1.0 means one image pixel per screen pixel.
+    var visualScale: CGFloat {
+        zoomFactor * max(document.scale, 1)
+    }
+
+    var zoomPercent: Int {
+        Int((visualScale * 100).rounded())
+    }
+
+    var canZoomIn: Bool { visualScale < Self.zoomLadder.last! - 0.001 }
+    var canZoomOut: Bool { visualScale > Self.zoomLadder.first! + 0.001 }
+
+    /// Called by the canvas whenever the window size changes the fit.
+    func updateFitScale(_ scale: CGFloat) {
+        guard abs(scale - fitScale) > 0.0001 else { return }
+        fitScale = scale
+    }
+
+    func setVisualScale(_ scale: CGFloat) {
+        let clamped = min(max(scale, Self.zoomLadder.first!), Self.zoomLadder.last!)
+        zoomMode = .factor(clamped / max(document.scale, 1))
+    }
+
+    func zoomIn() {
+        let current = visualScale
+        setVisualScale(Self.zoomLadder.first { $0 > current + 0.001 } ?? Self.zoomLadder.last!)
+    }
+
+    func zoomOut() {
+        let current = visualScale
+        setVisualScale(Self.zoomLadder.last { $0 < current - 0.001 } ?? Self.zoomLadder.first!)
+    }
+
+    func zoomToActualSize() {
+        setVisualScale(1)
+    }
+
+    func zoomToFit() {
+        zoomMode = .fit
     }
 
     // MARK: - Derived

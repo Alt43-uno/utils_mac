@@ -142,13 +142,22 @@ its handles, restyle it or delete it — at any time, including after a restart.
 
 | Command | Shortcut |
 | --- | --- |
-| Undo / Redo | `⌘Z` / `⇧⌘Z` |
+| Zoom in / out | `⌘+` / `⌘−` |
+| Actual size / Zoom to fit | `⌘0` / `⌘9` |
+| Undo / Redo | `⌘Z` / `⌘⇧Z` |
 | Copy to clipboard | `⌘C` |
 | Save / Save As… | `⌘S` / `⇧⌘S` |
 | Delete selected object | `⌫` |
 | Nudge selection | arrow keys (`⇧` for 10 px) |
 | Constrain while drawing | hold `⇧` |
 | Close the editor | `⌘W` |
+
+Zooming works the way it does elsewhere on macOS: **pinch** on the trackpad,
+**⌘ + scroll**, or the stepper in the status bar, all anchored on the pointer so
+the pixel you are looking at stays put. A **two-finger scroll** pans once the
+image is bigger than the window, and a **two-finger double tap** toggles between
+fitting the window and 100%. Zoom runs from 10% to 1600%; drawing, selecting and
+cropping all keep working at any level.
 
 Editing is **non-destructive**: the original bitmap is never modified, so the
 crop can be reset and every object stays editable. Closing the editor keeps the

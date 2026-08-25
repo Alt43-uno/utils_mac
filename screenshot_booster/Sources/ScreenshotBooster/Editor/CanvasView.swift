@@ -29,6 +29,9 @@ final class CanvasView: NSView, NSTextViewDelegate {
     /// dragging is a 1:1 blit instead of a full-resolution resample.
     private var scaledBase: CGImage?
     private var scaledBaseKey: Int = .min
+    /// Panning offset, kept local so dragging the view around never pushes
+    /// updates through SwiftUI.
+    var panOffset: CGSize = .zero
 
     private let padding: CGFloat = 24
     private let handleSize: CGFloat = 9
@@ -38,6 +41,9 @@ final class CanvasView: NSView, NSTextViewDelegate {
         super.init(frame: .zero)
         wantsLayer = true
         layer?.backgroundColor = NSColor.clear.cgColor
+        // Zoomed-in content is larger than the view; without this it would spill
+        // over the toolbar and the status bar.
+        layer?.masksToBounds = true
     }
 
     @available(*, unavailable)
@@ -51,24 +57,89 @@ final class CanvasView: NSView, NSTextViewDelegate {
         model.tool == .crop ? model.document.baseBounds : model.document.visibleRect
     }
 
-    /// Pixels-to-points factor the image is currently drawn at.
-    var zoom: CGFloat {
-        let available = CGSize(width: max(bounds.width - padding * 2, 1),
-                               height: max(bounds.height - padding * 2, 1))
+    /// Viewport the image is laid out in.
+    private var viewport: CGSize {
+        CGSize(width: max(bounds.width - padding * 2, 1),
+               height: max(bounds.height - padding * 2, 1))
+    }
+
+    /// Scale at which the whole document fits the window, never upscaling past
+    /// 100% logical size — a Retina shot fits at 1:2.
+    var fitZoom: CGFloat {
         let rect = displayRect
         guard rect.width > 0, rect.height > 0 else { return 1 }
-        let fit = min(available.width / rect.width, available.height / rect.height)
-        // Never upscale past 100% logical size — a Retina shot shows at 1:2.
+        let fit = min(viewport.width / rect.width, viewport.height / rect.height)
         return min(fit, 1 / max(model.document.scale, 1))
+    }
+
+    /// Pixels-to-points factor the image is currently drawn at.
+    var zoom: CGFloat {
+        if case .factor(let factor) = model.zoomMode { return factor }
+        return fitZoom
     }
 
     private var contentRect: CGRect {
         let rect = displayRect
         let size = CGSize(width: rect.width * zoom, height: rect.height * zoom)
-        return CGRect(x: (bounds.width - size.width) / 2,
-                      y: (bounds.height - size.height) / 2,
-                      width: size.width,
-                      height: size.height)
+        var origin = CGPoint(x: (bounds.width - size.width) / 2,
+                             y: (bounds.height - size.height) / 2)
+        origin.x += Self.clampedPan(panOffset.width, content: size.width, viewport: viewport.width)
+        origin.y += Self.clampedPan(panOffset.height, content: size.height, viewport: viewport.height)
+        return CGRect(origin: origin, size: size)
+    }
+
+    /// Panning is only possible along an axis where the image overflows the
+    /// viewport, and it stops at the image's edges.
+    private static func clampedPan(_ value: CGFloat, content: CGFloat, viewport: CGFloat) -> CGFloat {
+        let slack = max(0, (content - viewport) / 2)
+        return min(max(value, -slack), slack)
+    }
+
+    /// True when the image is larger than the viewport in either direction.
+    var isPannable: Bool {
+        let rect = displayRect
+        return rect.width * zoom > viewport.width + 1 || rect.height * zoom > viewport.height + 1
+    }
+
+    func pan(by delta: CGSize) {
+        panOffset.width += delta.width
+        panOffset.height += delta.height
+        clampPan()
+        needsDisplay = true
+    }
+
+    func clampPan() {
+        let rect = displayRect
+        let size = CGSize(width: rect.width * zoom, height: rect.height * zoom)
+        panOffset.width = Self.clampedPan(panOffset.width, content: size.width, viewport: viewport.width)
+        panOffset.height = Self.clampedPan(panOffset.height, content: size.height, viewport: viewport.height)
+    }
+
+    /// Zooms while keeping the image point under `anchor` in place.
+    func setVisualScale(_ scale: CGFloat, anchor: CGPoint? = nil) {
+        let anchorPoint = anchor ?? CGPoint(x: bounds.midX, y: bounds.midY)
+        let imageAnchor = imagePoint(fromView: anchorPoint)
+        model.setVisualScale(scale)
+        let movedAnchor = viewPoint(fromImage: imageAnchor)
+        panOffset.width += anchorPoint.x - movedAnchor.x
+        panOffset.height += anchorPoint.y - movedAnchor.y
+        clampPan()
+        needsDisplay = true
+    }
+
+    /// Keeps the view model's idea of the fit in sync and resets panning when
+    /// the document is fitted to the window again.
+    func syncZoomState() {
+        let fit = fitZoom
+        if abs(model.fitScale - fit) > 0.0001 {
+            // Deferred: this runs during layout, and SwiftUI dislikes state
+            // changing mid-update.
+            DispatchQueue.main.async { [weak model] in model?.updateFitScale(fit) }
+        }
+        if model.zoomMode == .fit, panOffset != .zero {
+            panOffset = .zero
+            needsDisplay = true
+        }
     }
 
     func imagePoint(fromView point: CGPoint) -> CGPoint {
@@ -122,6 +193,13 @@ final class CanvasView: NSView, NSTextViewDelegate {
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         if window == nil { endTextEditing(commit: true) }
+        syncZoomState()
+    }
+
+    override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        syncZoomState()
+        clampPan()
     }
 
     // MARK: - Drawing

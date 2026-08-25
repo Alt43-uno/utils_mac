@@ -147,12 +147,18 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate, NSMenu
     @objc func saveDocument(_ sender: Any?) { model.save() }
     @objc func saveDocumentAs(_ sender: Any?) { model.saveAs() }
     @objc func delete(_ sender: Any?) { model.deleteSelection() }
+    @objc func zoomIn(_ sender: Any?) { model.zoomIn() }
+    @objc func zoomOut(_ sender: Any?) { model.zoomOut() }
+    @objc func actualSize(_ sender: Any?) { model.zoomToActualSize() }
+    @objc func zoomToFit(_ sender: Any?) { model.zoomToFit() }
 
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
         case #selector(undo(_:)): return model.canUndo
         case #selector(redo(_:)): return model.canRedo
         case #selector(delete(_:)): return model.selectedID != nil
+        case #selector(zoomIn(_:)): return model.canZoomIn
+        case #selector(zoomOut(_:)): return model.canZoomOut
         default: return true
         }
     }

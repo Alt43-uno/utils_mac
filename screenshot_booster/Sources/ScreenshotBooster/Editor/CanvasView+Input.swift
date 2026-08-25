@@ -129,12 +129,59 @@ extension CanvasView {
         updateCursor(for: imagePoint(fromView: convert(event.locationInWindow, from: nil)))
     }
 
+    /// Middle-button drag pans, the way most image editors do it.
+    override func otherMouseDragged(with event: NSEvent) {
+        guard isPannable else { return }
+        pan(by: CGSize(width: event.deltaX, height: -event.deltaY))
+    }
+
     override func cursorUpdate(with event: NSEvent) {
         updateCursor(for: imagePoint(fromView: convert(event.locationInWindow, from: nil)))
     }
 
     override func mouseExited(with event: NSEvent) {
         NSCursor.arrow.set()
+    }
+
+    // MARK: - Zoom and pan
+
+    /// Pinch on the trackpad.
+    override func magnify(with event: NSEvent) {
+        guard event.magnification != 0 else { return }
+        let anchor = convert(event.locationInWindow, from: nil)
+        setVisualScale(model.visualScale * (1 + event.magnification), anchor: anchor)
+    }
+
+    /// Double-tap with two fingers toggles between fitting and actual size.
+    override func smartMagnify(with event: NSEvent) {
+        let anchor = convert(event.locationInWindow, from: nil)
+        if model.zoomMode == .fit {
+            setVisualScale(1, anchor: anchor)
+        } else {
+            model.zoomToFit()
+            panOffset = .zero
+            needsDisplay = true
+        }
+    }
+
+    /// Two-finger scroll pans; holding ⌘ or ⌥ zooms instead.
+    override func scrollWheel(with event: NSEvent) {
+        let zooming = !event.modifierFlags.intersection([.command, .option]).isEmpty
+        if zooming {
+            let steps = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY / 90
+                                                        : event.scrollingDeltaY / 6
+            guard steps != 0 else { return }
+            let anchor = convert(event.locationInWindow, from: nil)
+            setVisualScale(model.visualScale * (1 + steps), anchor: anchor)
+            return
+        }
+
+        guard isPannable else {
+            super.scrollWheel(with: event)
+            return
+        }
+        // Natural scrolling already matches "content follows your fingers".
+        pan(by: CGSize(width: event.scrollingDeltaX, height: -event.scrollingDeltaY))
     }
 
     // MARK: - Interaction helpers

@@ -14,6 +14,7 @@ struct CanvasRepresentable: NSViewRepresentable {
         if view.isEditingText, model.tool != .text, model.tool != .select {
             view.endTextEditing(commit: true)
         }
+        view.syncZoomState()
         view.needsDisplay = true
     }
 
