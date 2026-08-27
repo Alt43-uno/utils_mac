@@ -86,6 +86,9 @@ final class EditorViewModel: ObservableObject {
     /// Zoom steps, expressed as a multiple of the image's actual pixel size.
     private static let zoomLadder: [CGFloat] = [0.1, 0.25, 0.33, 0.5, 0.66, 1, 1.5, 2, 3, 4, 6, 8, 12, 16]
 
+    static var minVisualScale: CGFloat { zoomLadder.first! }
+    static var maxVisualScale: CGFloat { zoomLadder.last! }
+
     /// Pixels-to-points factor currently in use.
     var zoomFactor: CGFloat {
         if case .factor(let factor) = zoomMode { return factor }

@@ -50,6 +50,17 @@ struct PixelSampler {
         return RGBAColor(red: rgb[0], green: rgb[1], blue: rgb[2], alpha: 1)
     }
 
+    /// Alpha of a single pixel, in image pixel space with a top-left origin.
+    func alpha(at point: CGPoint) -> Double {
+        let x = Int(point.x), y = Int(point.y)
+        guard x >= 0, y >= 0, x < width, y < height else { return 1 }
+        let offset = y * bytesPerRow + x * bytesPerPixel
+        // Alpha is the first byte when it leads, the last otherwise; the byte
+        // order flips which end of the pixel that is.
+        let index = alphaFirst == isLittleEndian ? 3 : 0
+        return Double(pointer[offset + index]) / 255.0
+    }
+
     static func hexString(for color: RGBAColor) -> String {
         String(format: "#%02X%02X%02X",
                Int((color.red * 255).rounded()),

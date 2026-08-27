@@ -147,9 +147,15 @@ extension CanvasView {
 
     /// Pinch on the trackpad.
     override func magnify(with event: NSEvent) {
-        guard event.magnification != 0 else { return }
-        let anchor = convert(event.locationInWindow, from: nil)
-        setVisualScale(model.visualScale * (1 + event.magnification), anchor: anchor)
+        switch event.phase {
+        case .ended, .cancelled:
+            commitLiveZoom()
+        default:
+            guard event.magnification != 0 else { return }
+            let anchor = convert(event.locationInWindow, from: nil)
+            applyLiveVisualScale(zoom * max(model.document.scale, 1) * (1 + event.magnification),
+                                 anchor: anchor)
+        }
     }
 
     /// Double-tap with two fingers toggles between fitting and actual size.

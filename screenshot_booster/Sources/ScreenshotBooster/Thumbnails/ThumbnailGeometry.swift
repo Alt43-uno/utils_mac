@@ -10,7 +10,9 @@ enum ThumbnailGeometry {
     static let spacing: CGFloat = 10
     static let padding: CGFloat = 10
     static let headerHeight: CGFloat = 24
-    static let cornerRadius: CGFloat = 10
+    static let cornerRadius: CGFloat = 13
+    /// Radius of the screenshot inside its glass frame.
+    static let innerCornerRadius: CGFloat = 9
 
     /// Where every card ends up, in the stack's own space (top-left origin).
     struct Layout {

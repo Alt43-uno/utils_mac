@@ -18,27 +18,33 @@ struct ThumbnailStackView: View {
     /// The shot the stack should keep in view when a new one arrives.
     private var newestID: UUID? { library.screenshots.last?.id }
 
+    /// Lets neighbouring glass surfaces merge and morph as cards come and go.
+    @Namespace private var glassNamespace
+
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: ThumbnailGeometry.spacing) {
-                    // The header goes at the far end from the anchored corner so
-                    // the cards themselves stay closest to the screen edge.
-                    if showsHeader, settings.panelCorner.stackGrowsUpwards { header }
+                GlassEffectContainer(spacing: ThumbnailGeometry.spacing) {
+                    VStack(alignment: .leading, spacing: ThumbnailGeometry.spacing) {
+                        // The header goes at the far end from the anchored corner
+                        // so the cards stay closest to the screen edge.
+                        if showsHeader, settings.panelCorner.stackGrowsUpwards { header }
 
-                    ForEach(orderedScreenshots) { screenshot in
-                        ThumbnailItemView(screenshot: screenshot,
-                                          width: width,
-                                          actions: actions,
-                                          interaction: interaction)
-                            .id(screenshot.id)
-                            .transition(.asymmetric(
-                                insertion: .scale(scale: 0.82).combined(with: .opacity),
-                                removal: .scale(scale: 0.9).combined(with: .opacity)
-                            ))
+                        ForEach(orderedScreenshots) { screenshot in
+                            ThumbnailItemView(screenshot: screenshot,
+                                              width: width,
+                                              actions: actions,
+                                              interaction: interaction)
+                                .id(screenshot.id)
+                                .glassEffectID(screenshot.id, in: glassNamespace)
+                                .transition(.asymmetric(
+                                    insertion: .scale(scale: 0.82).combined(with: .opacity),
+                                    removal: .scale(scale: 0.9).combined(with: .opacity)
+                                ))
+                        }
+
+                        if showsHeader, !settings.panelCorner.stackGrowsUpwards { header }
                     }
-
-                    if showsHeader, !settings.panelCorner.stackGrowsUpwards { header }
                 }
                 .padding(ThumbnailGeometry.padding)
                 .frame(width: width + ThumbnailGeometry.padding * 2, alignment: .leading)
@@ -63,19 +69,13 @@ struct ThumbnailStackView: View {
         HStack(spacing: 6) {
             Text("\(library.screenshots.count) shots")
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.9))
             Spacer(minLength: 4)
             Button("Clear") { actions.clearAll() }
                 .buttonStyle(.plain)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.9))
         }
-        .padding(.horizontal, 9)
+        .padding(.horizontal, 10)
         .frame(width: width, height: ThumbnailGeometry.headerHeight)
-        .background(
-            Capsule(style: .continuous)
-                .fill(.black.opacity(0.55))
-        )
-        .overlay(Capsule(style: .continuous).strokeBorder(.white.opacity(0.15), lineWidth: 0.5))
+        .glassEffect(.regular, in: .capsule)
     }
 }

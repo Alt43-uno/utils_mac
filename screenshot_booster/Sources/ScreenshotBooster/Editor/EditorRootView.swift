@@ -5,14 +5,26 @@ struct EditorRootView: View {
     @ObservedObject var model: EditorViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            EditorToolbarView(model: model)
-            Divider()
+        // The canvas runs edge to edge and the bars float on top of it: glass
+        // needs something behind it to refract, and an opaque window background
+        // gives it nothing.
+        ZStack(alignment: .top) {
+            // Transparent window: what shows through is the blurred desktop and
+            // whatever windows are behind, darkened just enough to read against.
+            WindowBackdropView()
+                .overlay(Color.black.opacity(0.28))
+
             CanvasRepresentable(model: model)
-                .background(Color(nsColor: .underPageBackgroundColor))
-            Divider()
-            statusBar
+
+            VStack(spacing: 0) {
+                EditorToolbarView(model: model)
+                Spacer(minLength: 0)
+                statusBar
+            }
         }
+        // The window uses a full-size content view, so the controls belong level
+        // with the traffic lights rather than pushed below the title bar.
+        .ignoresSafeArea()
         .frame(minWidth: 900, minHeight: 480)
     }
 
@@ -44,9 +56,11 @@ struct EditorRootView: View {
             }
         }
         .font(.system(size: 11))
-        .padding(.horizontal, 12)
-        .frame(height: 26)
-        .background(.bar)
+        .padding(.horizontal, 14)
+        .frame(height: EditorChrome.statusHeight)
+        .glassEffect(.regular, in: .capsule)
+        .padding(.horizontal, EditorChrome.margin)
+        .padding(.bottom, EditorChrome.margin)
         .animation(.easeInOut(duration: 0.18), value: model.status)
     }
 

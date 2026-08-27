@@ -22,6 +22,10 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate, NSMenu
                               defer: false)
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
+        // The blurred backdrop lives in the content view, so the window itself
+        // must not paint anything.
+        window.isOpaque = false
+        window.backgroundColor = .clear
         window.isMovableByWindowBackground = false
         window.tabbingMode = .disallowed
         window.isReleasedWhenClosed = false
@@ -69,7 +73,7 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate, NSMenu
         let screen = window.screen ?? NSScreenProvider.screenWithMouse ?? NSScreenProvider.primary
         let visible = screen?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900)
 
-        let chrome = CGSize(width: 0, height: 48 + 26 + 2)
+        let chrome = CGSize(width: 0, height: EditorChrome.topInset + EditorChrome.bottomInset)
         let logical = CGSize(width: model.outputSize.width / max(model.document.scale, 1),
                              height: model.outputSize.height / max(model.document.scale, 1))
         let maxContent = CGSize(width: visible.width * 0.82, height: visible.height * 0.82 - chrome.height)

@@ -16,7 +16,7 @@ cd "$ROOT"
 APP_NAME="Screenshot Booster"
 EXECUTABLE="ScreenshotBooster"
 BUNDLE_ID="com.screenshotbooster.app"
-DEPLOYMENT_TARGET="14.0"
+DEPLOYMENT_TARGET="26.0"
 
 BUILD_DIR="$ROOT/build"
 APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"

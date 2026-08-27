@@ -27,14 +27,29 @@ final class CanvasView: NSView, NSTextViewDelegate {
     private var trackingArea: NSTrackingArea?
     /// Base bitmap pre-scaled to the current on-screen size, so redrawing while
     /// dragging is a 1:1 blit instead of a full-resolution resample.
+    /// Screenshot rasterised at exactly the pixel size it is shown at, plus the
+    /// region and scale it was made for.
     private var scaledBase: CGImage?
-    private var scaledBaseKey: Int = .min
+    private var scaledBaseRegion: CGRect?
+    private var scaledBaseScale: CGFloat = 0
+    private var transparencyCache: Bool?
+    private var transparencyKey: ObjectIdentifier?
     /// Panning offset, kept local so dragging the view around never pushes
     /// updates through SwiftUI.
     var panOffset: CGSize = .zero
+    /// Zoom held locally for the duration of a pinch. Publishing every gesture
+    /// event would re-render the whole editor — glass pills included — at the
+    /// trackpad's event rate.
+    private var liveZoomFactor: CGFloat?
+    private var lastZoomSync: Date = .distantPast
 
     private let padding: CGFloat = 24
     private let handleSize: CGFloat = 9
+    /// The toolbar and status bar float over the canvas, so the image has to be
+    /// laid out inside what they leave free.
+    var contentInsets = NSEdgeInsets(top: EditorChrome.topInset, left: 0,
+                                     bottom: EditorChrome.bottomInset, right: 0)
+
 
     init(model: EditorViewModel) {
         self.model = model
@@ -57,11 +72,16 @@ final class CanvasView: NSView, NSTextViewDelegate {
         model.tool == .crop ? model.document.baseBounds : model.document.visibleRect
     }
 
-    /// Viewport the image is laid out in.
-    private var viewport: CGSize {
-        CGSize(width: max(bounds.width - padding * 2, 1),
-               height: max(bounds.height - padding * 2, 1))
+    /// Region left over once the floating bars and padding are accounted for.
+    private var layoutRect: CGRect {
+        CGRect(x: padding,
+               y: padding + contentInsets.bottom,
+               width: max(bounds.width - padding * 2, 1),
+               height: max(bounds.height - padding * 2 - contentInsets.top - contentInsets.bottom, 1))
     }
+
+    /// Viewport the image is laid out in.
+    private var viewport: CGSize { layoutRect.size }
 
     /// Scale at which the whole document fits the window, never upscaling past
     /// 100% logical size — a Retina shot fits at 1:2.
@@ -74,6 +94,7 @@ final class CanvasView: NSView, NSTextViewDelegate {
 
     /// Pixels-to-points factor the image is currently drawn at.
     var zoom: CGFloat {
+        if let liveZoomFactor { return liveZoomFactor }
         if case .factor(let factor) = model.zoomMode { return factor }
         return fitZoom
     }
@@ -81,8 +102,9 @@ final class CanvasView: NSView, NSTextViewDelegate {
     private var contentRect: CGRect {
         let rect = displayRect
         let size = CGSize(width: rect.width * zoom, height: rect.height * zoom)
-        var origin = CGPoint(x: (bounds.width - size.width) / 2,
-                             y: (bounds.height - size.height) / 2)
+        let area = layoutRect
+        var origin = CGPoint(x: area.midX - size.width / 2,
+                             y: area.midY - size.height / 2)
         origin.x += Self.clampedPan(panOffset.width, content: size.width, viewport: viewport.width)
         origin.y += Self.clampedPan(panOffset.height, content: size.height, viewport: viewport.height)
         return CGRect(origin: origin, size: size)
@@ -115,8 +137,37 @@ final class CanvasView: NSView, NSTextViewDelegate {
         panOffset.height = Self.clampedPan(panOffset.height, content: size.height, viewport: viewport.height)
     }
 
+    /// Zooms during a pinch without pushing every step through SwiftUI.
+    func applyLiveVisualScale(_ scale: CGFloat, anchor: CGPoint) {
+        let clamped = min(max(scale, EditorViewModel.minVisualScale), EditorViewModel.maxVisualScale)
+        let imageAnchor = imagePoint(fromView: anchor)
+        liveZoomFactor = clamped / max(model.document.scale, 1)
+
+        let movedAnchor = viewPoint(fromImage: imageAnchor)
+        panOffset.width += anchor.x - movedAnchor.x
+        panOffset.height += anchor.y - movedAnchor.y
+        clampPan()
+        needsDisplay = true
+
+        // Let the status pill keep up, but only a few times a second.
+        let now = Date()
+        if now.timeIntervalSince(lastZoomSync) > 0.1 {
+            lastZoomSync = now
+            model.setVisualScale(clamped)
+        }
+    }
+
+    /// Hands the pinch result back to the view model.
+    func commitLiveZoom() {
+        guard let factor = liveZoomFactor else { return }
+        liveZoomFactor = nil
+        model.setVisualScale(factor * max(model.document.scale, 1))
+        needsDisplay = true
+    }
+
     /// Zooms while keeping the image point under `anchor` in place.
     func setVisualScale(_ scale: CGFloat, anchor: CGPoint? = nil) {
+        liveZoomFactor = nil
         let anchorPoint = anchor ?? CGPoint(x: bounds.midX, y: bounds.midY)
         let imageAnchor = imagePoint(fromView: anchorPoint)
         model.setVisualScale(scale)
@@ -129,6 +180,14 @@ final class CanvasView: NSView, NSTextViewDelegate {
 
     /// Keeps the view model's idea of the fit in sync and resets panning when
     /// the document is fitted to the window again.
+    /// Drops the rasterised copy when the document it was cut from changed.
+    func invalidateZoomTileIfNeeded() {
+        if transparencyKey != ObjectIdentifier(model.document.base) {
+            scaledBase = nil
+            scaledBaseRegion = nil
+        }
+    }
+
     func syncZoomState() {
         let fit = fitZoom
         if abs(model.fitScale - fit) > 0.0001 {
@@ -209,31 +268,46 @@ final class CanvasView: NSView, NSTextViewDelegate {
         let content = contentRect
         let rect = displayRect
 
+        // With the image larger than the window there is no visible edge, so the
+        // shadow would only cost a blur over a gigantic rectangle.
+        let showsEdge = !content.contains(bounds)
+        if showsEdge {
+            drawImageShadow(around: content, context: context)
+        }
         drawCheckerboard(in: content, context: context)
 
         context.saveGState()
         context.translateBy(x: content.minX, y: content.maxY)
         context.scaleBy(x: zoom, y: -zoom)
         context.translateBy(x: -rect.minX, y: -rect.minY)
-        context.clip(to: rect)
-        context.interpolationQuality = .high
+        // Clipping to what is on screen lets Core Graphics reject most geometry
+        // before it rasterises anything.
+        let visible = visibleImageRect
+        context.clip(to: rect.intersection(visible))
+        // Magnifying past 1:1 should show real pixels — nearest neighbour is both
+        // more honest and far cheaper than a smooth resample.
+        context.interpolationQuality = model.visualScale > 1.2 ? .none : .high
 
-        AnnotationRenderer.drawImage(displayBase(), in: model.document.baseBounds, context: context)
+        drawBase(in: context)
         // The object being edited, moved or resized is drawn from the live
         // preview instead, so it must be skipped here.
         let hiddenID = editingAnnotationID ?? interactionOriginalID
         for annotation in model.document.annotations where annotation.id != hiddenID {
+            guard annotation.displayBounds.intersects(visible) else { continue }
             AnnotationRenderer.draw(annotation: annotation,
                                     base: model.document.base,
                                     in: context,
-                                    effects: model.effects)
+                                    effects: model.effects,
+                                    visibleRect: visible)
         }
         if let live = liveAnnotation {
             drawLive(live, in: context)
         }
         context.restoreGState()
 
-        drawFrame(around: content, context: context)
+        if showsEdge {
+            drawFrame(around: content, context: context)
+        }
 
         if model.tool == .crop {
             drawCropOverlay(context: context)
@@ -259,7 +333,8 @@ final class CanvasView: NSView, NSTextViewDelegate {
             AnnotationRenderer.draw(annotation: annotation,
                                     base: model.document.base,
                                     in: context,
-                                    effects: model.effects)
+                                    effects: model.effects,
+                                    visibleRect: visibleImageRect)
             return
         }
         let rect = CGRect(corner: annotation.start, opposite: annotation.end)
@@ -281,36 +356,181 @@ final class CanvasView: NSView, NSTextViewDelegate {
         }
     }
 
-    /// Returns the base bitmap at (roughly) the size it is displayed.
-    private func displayBase() -> CGImage {
+    /// Region of image space currently on screen, in image pixels.
+    private var visibleImageRect: CGRect {
+        let topLeft = imagePoint(fromView: CGPoint(x: bounds.minX, y: bounds.maxY))
+        let bottomRight = imagePoint(fromView: CGPoint(x: bounds.maxX, y: bounds.minY))
+        return CGRect(corner: topLeft, opposite: bottomRight).insetBy(dx: -2, dy: -2)
+    }
+
+    /// Draws the screenshot, touching only the pixels that are actually visible.
+    ///
+    /// Handing Core Graphics the whole bitmap at 1600% makes it resample every
+    /// pixel of the source just to clip almost all of it away; cropping first
+    /// keeps the cost proportional to the window instead of the zoom level.
+    private func drawBase(in context: CGContext) {
+        let fullBounds = model.document.baseBounds
+        let visible = visibleImageRect.pixelAligned.intersection(fullBounds)
+        guard !visible.isEmpty else { return }
+
+        // Magnified: rasterise a padded window onto the screenshot, so panning
+        // reuses it. Otherwise: the whole visible region in one go.
+        if model.visualScale > 1,
+           visible.width < fullBounds.width || visible.height < fullBounds.height {
+            let padded = visible
+                .insetBy(dx: -visible.width * 0.3, dy: -visible.height * 0.3)
+                .pixelAligned
+                .intersection(fullBounds)
+            drawRegion(required: visible, build: padded.isEmpty ? visible : padded, in: context)
+        } else {
+            drawRegion(required: displayRect, build: displayRect, in: context)
+        }
+    }
+
+    /// Draws a region of the screenshot as a bitmap rasterised at exactly its
+    /// on-screen pixel size, blitted 1:1.
+    ///
+    /// This is the single most important thing for smoothness: Core Graphics
+    /// blits a whole-pixel 1:1 bitmap almost for free, but a fractional
+    /// destination — which is what the canvas' zoom transform produces at almost
+    /// every zoom level — drops it into a general resampler an order of
+    /// magnitude slower.
+    /// - Parameters:
+    ///   - required: the region that must be covered, i.e. what is on screen.
+    ///   - build: the region to rasterise if the cache misses — padded, so that
+    ///     panning keeps hitting the same bitmap.
+    private func drawRegion(required: CGRect, build: CGRect, in context: CGContext) {
+        let backingScale = window?.backingScaleFactor ?? 2
+        // Device pixels per image pixel.
+        let deviceScale = (viewRect(fromImage: build).width * backingScale) / max(build.width, 1)
+
+        guard let raster = rasterised(covering: required, build: build, deviceScale: deviceScale) else {
+            AnnotationRenderer.drawImage(model.document.base, in: model.document.baseBounds, context: context)
+            return
+        }
+
+        let onScreen = viewRect(fromImage: raster.region)
+        context.saveGState()
+        // Into the backing store's own coordinates. The clip set earlier lives in
+        // device space, so cropping still applies.
+        context.concatenate(context.ctm.inverted())
+        context.interpolationQuality = .none
+        // The destination takes the bitmap's own pixel size: a rounding
+        // difference of one pixel is invisible, a fractional size is not.
+        context.draw(raster.image, in: CGRect(x: (onScreen.minX * backingScale).rounded(),
+                                              y: (onScreen.minY * backingScale).rounded(),
+                                              width: CGFloat(raster.image.width),
+                                              height: CGFloat(raster.image.height)))
+        context.restoreGState()
+    }
+
+    /// A rasterised copy covering `region` at `deviceScale`, reusing the cached
+    /// one whenever it already covers what is being asked for — otherwise
+    /// panning would rebuild the bitmap on every frame.
+    private func rasterised(covering required: CGRect,
+                            build: CGRect,
+                            deviceScale: CGFloat) -> (image: CGImage, region: CGRect)? {
+        if let scaledBase, let cached = scaledBaseRegion,
+           abs(scaledBaseScale - deviceScale) < 0.0001, cached.contains(required) {
+            return (scaledBase, cached)
+        }
+
         let base = model.document.base
-        let factor = zoom * (window?.backingScaleFactor ?? 2)
-        guard factor < 0.9 else { return base }
+        let source = build.pixelAligned.intersection(model.document.baseBounds)
+        guard !source.isEmpty else { return nil }
 
-        let longest = CGFloat(max(base.width, base.height))
-        // Quantised so a window resize does not rebuild the bitmap continuously.
-        let target = max(256, ((longest * factor) / 128).rounded(.up) * 128)
-        let key = Int(target)
-        if let scaledBase, scaledBaseKey == key { return scaledBase }
+        let pixelWidth = Int((source.width * deviceScale).rounded())
+        let pixelHeight = Int((source.height * deviceScale).rounded())
+        guard pixelWidth > 0, pixelHeight > 0, pixelWidth * pixelHeight < 40_000_000 else { return nil }
 
-        let produced = ImageUtilities.downscale(base, maxPixelSize: target)
+        let cropped = source == model.document.baseBounds ? base : base.cropping(to: source)
+        // Nearest neighbour is both faster and more honest when magnifying;
+        // smooth resampling is faster and better looking when shrinking.
+        let magnifying = deviceScale > 1
+        guard let cropped,
+              let produced = ImageUtilities.resize(cropped,
+                                                   pixelWidth: pixelWidth,
+                                                   pixelHeight: pixelHeight,
+                                                   quality: magnifying ? .none : .high) else {
+            return nil
+        }
         scaledBase = produced
-        scaledBaseKey = key
-        return produced
+        scaledBaseRegion = source
+        scaledBaseScale = deviceScale
+        return (produced, source)
+    }
+
+    /// Lifts the screenshot off the blurred window backdrop.
+    private func drawImageShadow(around rect: CGRect, context: CGContext) {
+        // Only the edges near the window matter; blurring a shadow across a
+        // rectangle tens of thousands of points wide is pure waste.
+        let area = rect.intersection(bounds.insetBy(dx: -60, dy: -60))
+        guard !area.isEmpty else { return }
+        context.saveGState()
+        context.setShadow(offset: CGSize(width: 0, height: -3),
+                          blur: 10,
+                          color: NSColor.black.withAlphaComponent(0.55).cgColor)
+        context.setFillColor(NSColor.black.cgColor)
+        context.fill(area)
+        context.restoreGState()
+    }
+
+    /// Whether the screenshot actually has transparent pixels.
+    ///
+    /// Almost every capture is fully opaque, and then the checkerboard is drawn
+    /// under an image that hides it completely — pure waste on every frame.
+    private var baseHasTransparency: Bool {
+        if let cached = transparencyCache, transparencyKey == ObjectIdentifier(model.document.base) {
+            return cached
+        }
+        let result = Self.detectTransparency(in: model.document.base)
+        transparencyCache = result
+        transparencyKey = ObjectIdentifier(model.document.base)
+        return result
+    }
+
+    /// Checks a heavily downscaled copy: averaging keeps a fully opaque image at
+    /// full alpha, while any transparency anywhere drags a pixel below it.
+    private static func detectTransparency(in image: CGImage) -> Bool {
+        switch image.alphaInfo {
+        case .none, .noneSkipFirst, .noneSkipLast:
+            return false
+        default:
+            break
+        }
+        let probe = ImageUtilities.downscale(image, maxPixelSize: 64)
+        guard let sampler = PixelSampler(image: probe) else { return true }
+        for y in stride(from: 0, to: probe.height, by: 2) {
+            for x in stride(from: 0, to: probe.width, by: 2) {
+                if sampler.alpha(at: CGPoint(x: x, y: y)) < 0.99 { return true }
+            }
+        }
+        return false
     }
 
     private func drawCheckerboard(in rect: CGRect, context: CGContext) {
+        guard baseHasTransparency else { return }
+        // Only the part on screen is worth drawing: at high zoom `rect` can be
+        // tens of thousands of points across, which is millions of squares.
+        let area = rect.intersection(bounds)
+        guard !area.isEmpty else { return }
+
         context.saveGState()
-        context.clip(to: rect)
+        context.clip(to: area)
         context.setFillColor(NSColor(white: 0.85, alpha: 1).cgColor)
-        context.fill(rect)
+        context.fill(area)
         context.setFillColor(NSColor(white: 0.75, alpha: 1).cgColor)
+
         let square: CGFloat = 8
-        var y = rect.minY
-        var row = 0
-        while y < rect.maxY {
-            var x = rect.minX + (row.isMultiple(of: 2) ? 0 : square)
-            while x < rect.maxX {
+        // Start on the pattern's own grid so it does not shift while panning.
+        let firstRow = ((area.minY - rect.minY) / square).rounded(.down)
+        var row = Int(firstRow)
+        var y = rect.minY + firstRow * square
+        while y < area.maxY {
+            let offset = row.isMultiple(of: 2) ? 0 : square
+            let columnStart = ((area.minX - rect.minX - offset) / (square * 2)).rounded(.down)
+            var x = rect.minX + offset + columnStart * square * 2
+            while x < area.maxX {
                 context.fill(CGRect(x: x, y: y, width: square, height: square))
                 x += square * 2
             }
@@ -321,7 +541,7 @@ final class CanvasView: NSView, NSTextViewDelegate {
     }
 
     private func drawFrame(around rect: CGRect, context: CGContext) {
-        context.setStrokeColor(NSColor.separatorColor.cgColor)
+        context.setStrokeColor(NSColor.white.withAlphaComponent(0.18).cgColor)
         context.setLineWidth(1)
         context.stroke(rect.insetBy(dx: -0.5, dy: -0.5))
     }

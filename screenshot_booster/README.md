@@ -15,7 +15,8 @@ keyboard focus.
 
 ## Requirements
 
-* macOS 14 (Sonoma) or later — the app uses ScreenCaptureKit's
+* macOS 26 (Tahoe) or later — the interface is built on Liquid Glass
+  (`glassEffect`, `GlassEffectContainer`), and capture uses ScreenCaptureKit's
   `SCScreenshotManager`
 * Xcode command line tools (`xcode-select --install`)
 
@@ -201,6 +202,20 @@ bitmap plus an array of `Annotation` values and an optional crop rectangle, all
 history is a stack of document snapshots, and the (large) bitmap is a shared
 reference.
 
+**Liquid Glass, and no solid chrome.** The editor window is transparent: an
+`NSVisualEffectView` in `.behindWindow` mode blurs the desktop and whatever
+windows are behind it, and the screenshot floats on that with a soft shadow.
+The controls are separate glass capsules hovering over the image — tools, style,
+history and a prominent Save at the top, one status capsule at the bottom —
+rather than bars framing it. The thumbnail panel is the same idea: each shot is
+inset in a thin glass frame, with the header, the ✕ badge and the hover caption
+on glass too, all inside a `GlassEffectContainer` so neighbouring surfaces merge
+and morph as cards come and go.
+
+Liquid Glass samples content inside the window, which is why the behind-window
+blur is `NSVisualEffectView` rather than `glassEffect`; the two are doing
+different jobs.
+
 **AppKit where it earns its place.** SwiftUI drives the toolbar, thumbnails and
 settings. The editing canvas, the capture overlay and the shortcut recorder are
 AppKit views, because they need precise mouse handling, custom drawing and event
@@ -209,12 +224,33 @@ interception that SwiftUI does not express well.
 **Main actor by default.** Everything UI-facing is `@MainActor`; only the
 expensive, isolated work — PNG encoding, file writes — hops to a background task.
 
-**Performance details.** The capture overlay puts the frozen display bitmap in a
-`CALayer` so pointer movement re-composites instead of redrawing a 5K image; the
-canvas keeps a pre-scaled copy of the base bitmap for the same reason; blur and
-pixelate results are memoised in an LRU cache and previewed as a placeholder
-while you drag; style-slider edits collapse into a single undo step; and library
-writes are debounced.
+**Performance details.** The editor redraws in single-digit milliseconds at any
+zoom, which took a few specific things:
+
+* The screenshot is rasterised once at exactly its on-screen pixel size and
+  blitted 1:1. Core Graphics blits a whole-pixel bitmap almost for free but
+  falls into a general resampler for a fractional destination — which is what a
+  zoom transform produces at nearly every level, and it costs 10× more.
+* That bitmap covers a padded region, so panning reuses it instead of
+  re-rasterising every frame.
+* Nearest-neighbour when magnifying, smooth when shrinking: measured, each is
+  several times faster than the other in its own direction — and nearest is what
+  you want for inspecting pixels anyway.
+* Only the on-screen part of anything is drawn. The transparency checkerboard
+  used to iterate the whole content rectangle, which at 1600% is millions of
+  squares per frame; it is now clipped to the window and skipped outright for
+  opaque screenshots, which is nearly all of them.
+* The drop shadow and border are skipped when the image is larger than the
+  window, since there is no visible edge to shade.
+* Pinch-zoom keeps its state in the canvas and syncs to the view model a few
+  times a second, so a gesture does not re-render the SwiftUI chrome at the
+  trackpad's event rate.
+
+The capture overlay puts the frozen display bitmap in a `CALayer` so pointer
+movement re-composites instead of redrawing a 5K image; blur and pixelate
+results are memoised in an LRU cache and previewed as a placeholder while you
+drag; style-slider edits collapse into a single undo step; and library writes
+are debounced.
 
 ---
 

@@ -114,6 +114,22 @@ enum ImageUtilities {
         return context.makeImage() ?? image
     }
 
+    /// Resizes to an exact pixel size.
+    ///
+    /// Exactness is the point: Core Graphics blits a bitmap drawn at whole-pixel
+    /// 1:1 almost for free, and falls back to a much slower general resampler
+    /// for anything else — even a ratio of 0.99.
+    static func resize(_ image: CGImage,
+                       pixelWidth: Int,
+                       pixelHeight: Int,
+                       quality: CGInterpolationQuality = .high) -> CGImage? {
+        guard pixelWidth > 0, pixelHeight > 0,
+              let context = makeContext(pixelWidth: pixelWidth, pixelHeight: pixelHeight) else { return nil }
+        context.interpolationQuality = quality
+        context.draw(image, in: CGRect(x: 0, y: 0, width: pixelWidth, height: pixelHeight))
+        return context.makeImage()
+    }
+
     /// Wraps a `CGImage` in an `NSImage` sized in points for the given scale so
     /// Retina bitmaps render at their correct logical size.
     static func nsImage(from image: CGImage, scale: CGFloat) -> NSImage {

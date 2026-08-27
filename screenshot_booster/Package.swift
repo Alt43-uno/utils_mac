@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "ScreenshotBooster",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS("26.0")],
     products: [
         .executable(name: "ScreenshotBooster", targets: ["ScreenshotBooster"])
     ],

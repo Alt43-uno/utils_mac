@@ -9,22 +9,26 @@ import SwiftUI
 struct EditorToolbarView: View {
     @ObservedObject var model: EditorViewModel
 
-    /// Leaves room for the window's traffic lights, since the editor uses a
-    /// full-size content view.
-    private let trafficLightInset: CGFloat = 76
-
     var body: some View {
-        HStack(spacing: 10) {
-            toolGroup
-            Divider().frame(height: 20)
-            styleGroup
-            Spacer(minLength: 4)
-            actionGroup
+        // Separate floating capsules rather than one long bar — they read as
+        // controls hovering over the image instead of chrome framing it.
+        GlassEffectContainer(spacing: EditorChrome.spacing) {
+            HStack(spacing: EditorChrome.spacing) {
+                toolGroup.editorPill(horizontalPadding: 5)
+
+                if styleTool.usesColor || styleTool.usesLineWidth || styleTool == .text {
+                    styleGroup.editorPill()
+                }
+
+                Spacer(minLength: 4)
+
+                historyGroup.editorPill(horizontalPadding: 5)
+                saveButton
+            }
         }
-        .padding(.leading, trafficLightInset)
-        .padding(.trailing, 10)
-        .frame(height: 48)
-        .background(.bar)
+        .padding(.leading, EditorChrome.trafficLightInset)
+        .padding(.trailing, EditorChrome.margin)
+        .padding(.top, EditorChrome.topMargin)
     }
 
     // MARK: - Groups
@@ -47,7 +51,7 @@ struct EditorToolbarView: View {
 
     @ViewBuilder
     private var styleGroup: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 10) {
             if styleTool.usesColor {
                 ViewThatFits(in: .horizontal) {
                     ColorControls(color: $model.color, presetCount: RGBAColor.presets.count)
@@ -68,8 +72,8 @@ struct EditorToolbarView: View {
         .layoutPriority(1)
     }
 
-    private var actionGroup: some View {
-        HStack(spacing: 4) {
+    private var historyGroup: some View {
+        HStack(spacing: 2) {
             IconButton(systemImage: "arrow.uturn.backward", help: "Undo (⌘Z)", isEnabled: model.canUndo) {
                 model.undo()
             }
@@ -79,23 +83,9 @@ struct EditorToolbarView: View {
             IconButton(systemImage: "trash", help: "Delete selection (⌫)", isEnabled: model.selectedID != nil) {
                 model.deleteSelection()
             }
-
-            Divider().frame(height: 20)
-
             IconButton(systemImage: "doc.on.doc", help: "Copy to clipboard (⌘C)") {
                 model.copyToClipboard()
             }
-
-            Button {
-                model.save()
-            } label: {
-                Image(systemName: "square.and.arrow.down")
-                    .font(.system(size: 12, weight: .semibold))
-                    .frame(width: 26, height: 22)
-            }
-            .buttonStyle(.borderedProminent)
-            .help("Save (⌘S)")
-
             Menu {
                 Button("Save As…") { model.saveAs() }
                 Button("Copy to Clipboard") { model.copyToClipboard() }
@@ -107,11 +97,28 @@ struct EditorToolbarView: View {
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
-            .frame(width: 22)
+            .frame(width: 24)
             .help("More actions")
         }
         .layoutPriority(3)
         .fixedSize()
+    }
+
+    /// Its own prominent capsule — the one action worth standing out.
+    private var saveButton: some View {
+        Button {
+            model.save()
+        } label: {
+            Image(systemName: "square.and.arrow.down")
+                .font(.system(size: 13, weight: .semibold))
+                .frame(width: 30, height: EditorChrome.toolbarHeight)
+        }
+        .buttonStyle(.glassProminent)
+        // Without this the prominent style renders a rounded rectangle, which
+        // reads as a stray square next to a row of capsules.
+        .buttonBorderShape(.capsule)
+        .help("Save (⌘S)")
+        .layoutPriority(3)
     }
 }
 

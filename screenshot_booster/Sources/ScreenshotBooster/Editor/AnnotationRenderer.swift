@@ -47,7 +47,14 @@ enum AnnotationRenderer {
 
     // MARK: - Annotations
 
-    static func draw(annotation: Annotation, base: CGImage, in context: CGContext, effects: EffectCache) {
+    /// - Parameter visibleRect: the region actually on screen, in image pixels.
+    ///   Effects are cropped to it so a zoomed-in canvas does not blit millions
+    ///   of off-screen pixels every frame.
+    static func draw(annotation: Annotation,
+                     base: CGImage,
+                     in context: CGContext,
+                     effects: EffectCache,
+                     visibleRect: CGRect? = nil) {
         context.saveGState()
         defer { context.restoreGState() }
 
@@ -107,9 +114,24 @@ enum AnnotationRenderer {
         case .blur, .pixelate:
             let rect = CGRect(corner: annotation.start, opposite: annotation.end)
                 .clamped(to: CGRect(x: 0, y: 0, width: base.width, height: base.height))
+                .pixelAligned
             guard rect.width >= 1, rect.height >= 1,
                   let effect = effects.image(for: annotation, rect: rect, base: base) else { break }
-            drawImage(effect, in: rect.pixelAligned, context: context)
+
+            guard let visibleRect else {
+                drawImage(effect, in: rect, context: context)
+                break
+            }
+            let onScreen = rect.intersection(visibleRect.pixelAligned)
+            guard !onScreen.isEmpty else { break }
+            if onScreen == rect {
+                drawImage(effect, in: rect, context: context)
+            } else if let cropped = effect.cropping(to: CGRect(x: onScreen.minX - rect.minX,
+                                                               y: onScreen.minY - rect.minY,
+                                                               width: onScreen.width,
+                                                               height: onScreen.height)) {
+                drawImage(cropped, in: onScreen, context: context)
+            }
 
         case .select, .crop:
             break

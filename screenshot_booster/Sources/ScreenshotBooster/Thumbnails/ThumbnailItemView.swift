@@ -18,11 +18,15 @@ struct ThumbnailItemView: View {
         ThumbnailGeometry.cardHeight(for: screenshot, width: width)
     }
 
+    /// The screenshot sits inset inside a thin glass frame, so the refraction is
+    /// visible against whatever is behind the panel.
+    private let framePadding: CGFloat = 5
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             card
             closeButton
-                .padding(5)
+                .padding(3)
         }
         .frame(width: width, height: height)
         .offset(x: swipeOffset)
@@ -38,10 +42,7 @@ struct ThumbnailItemView: View {
     // MARK: - Pieces
 
     private var card: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: ThumbnailGeometry.cornerRadius, style: .continuous)
-                .fill(Color(nsColor: .windowBackgroundColor))
-
+        ZStack(alignment: .bottom) {
             if let image = actions.thumbnailImage(screenshot) {
                 Image(nsImage: image)
                     .resizable()
@@ -54,19 +55,13 @@ struct ThumbnailItemView: View {
             }
 
             if isHovering {
-                LinearGradient(colors: [.black.opacity(0.0), .black.opacity(0.45)],
-                               startPoint: .center, endPoint: .bottom)
-                    .allowsHitTesting(false)
                 caption
             }
         }
-        .frame(width: width, height: height)
-        .clipShape(RoundedRectangle(cornerRadius: ThumbnailGeometry.cornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: ThumbnailGeometry.cornerRadius, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.22), lineWidth: 1)
-        }
-        .shadow(color: .black.opacity(0.35), radius: 8, x: 0, y: 3)
+        .frame(width: width - framePadding * 2, height: height - framePadding * 2)
+        .clipShape(RoundedRectangle(cornerRadius: ThumbnailGeometry.innerCornerRadius, style: .continuous))
+        .padding(framePadding)
+        .glassEffect(.regular, in: .rect(cornerRadius: ThumbnailGeometry.cornerRadius, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: ThumbnailGeometry.cornerRadius, style: .continuous))
         // A plain tap gesture (rather than a Button) so it never competes with
         // the drag gesture that `.onDrag` installs.
@@ -74,22 +69,20 @@ struct ThumbnailItemView: View {
     }
 
     private var caption: some View {
-        VStack {
-            Spacer()
-            HStack(spacing: 4) {
-                Image(systemName: screenshot.mode.symbolName)
-                Text(screenshot.dimensionsLabel)
-                Spacer()
-                if screenshot.hasEdits {
-                    Image(systemName: "pencil.circle.fill")
-                }
+        HStack(spacing: 4) {
+            Image(systemName: screenshot.mode.symbolName)
+            Text(screenshot.dimensionsLabel)
+            if screenshot.hasEdits {
+                Image(systemName: "pencil")
             }
-            .font(.system(size: 10, weight: .medium))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 8)
-            .padding(.bottom, 6)
         }
+        .font(.system(size: 10, weight: .medium))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .glassEffect(.regular, in: .capsule)
+        .padding(.bottom, 6)
         .allowsHitTesting(false)
+        .transition(.opacity)
     }
 
     private var closeButton: some View {
@@ -98,13 +91,11 @@ struct ThumbnailItemView: View {
         } label: {
             Image(systemName: "xmark")
                 .font(.system(size: 8, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(width: 17, height: 17)
-                .background(Circle().fill(Color.black.opacity(isHovering ? 0.75 : 0.45)))
-                .overlay(Circle().strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5))
+                .frame(width: 18, height: 18)
+                .glassEffect(.regular.interactive(), in: .circle)
         }
         .buttonStyle(.plain)
-        .opacity(isHovering ? 1 : 0.65)
+        .opacity(isHovering ? 1 : 0.7)
         .help("Remove this screenshot")
     }
 
