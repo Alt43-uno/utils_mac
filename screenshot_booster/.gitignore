@@ -1,6 +1,7 @@
 # Build products
 build/
 .build/
+dist/
 *.o
 *.dSYM/
 

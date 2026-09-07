@@ -49,6 +49,25 @@ Keeping a single copy matters more than it sounds: two bundles with the same
 identifier at different paths each get their own Screen Recording grant, which
 shows up as the app asking for permission over and over.
 
+### Disk image
+
+```bash
+./Scripts/make_dmg.sh
+```
+
+Builds a universal app and packages it as a compressed disk image in `dist/`,
+with the usual drag-to-`/Applications` layout and the app icon as the volume
+icon. `--fast` skips the Intel slice, `--no-build` packages what is already in
+`build/`, and `--open` reveals the result in Finder.
+
+The image is fine for installing on your own machines. It is **not** signed with
+a Developer ID or notarised, so a Mac that downloads it through a browser will
+refuse to open the app — macOS quarantines it and Gatekeeper has no signature to
+check. Copying the image by AirDrop, a USB stick or `scp` avoids the quarantine
+flag; distributing it properly needs a paid Developer ID, `codesign` with that
+identity (set `CODESIGN_IDENTITY`, which both scripts honour) and
+`notarytool submit`.
+
 The app has no Dock icon — look for the camera icon in the menu bar.
 
 Move the bundle to `/Applications` if you want to keep it around; **Launch at
