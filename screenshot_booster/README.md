@@ -1,5 +1,7 @@
 # Screenshot Booster
 
+[← All utilities](../README.md)
+
 [![Build](https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml/badge.svg)](https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../LICENSE)
 ![macOS 26+](https://img.shields.io/badge/macOS-26%2B-black?logo=apple)
@@ -71,13 +73,11 @@ with the usual drag-to-`/Applications` layout and the app icon as the volume
 icon. `--fast` skips the Intel slice, `--no-build` packages what is already in
 `build/`, and `--open` reveals the result in Finder.
 
-The image is fine for installing on your own machines. It is **not** signed with
-a Developer ID or notarised, so a Mac that downloads it through a browser will
-refuse to open the app — macOS quarantines it and Gatekeeper has no signature to
-check. Copying the image by AirDrop, a USB stick or `scp` avoids the quarantine
-flag; distributing it properly needs a paid Developer ID, `codesign` with that
-identity (set `CODESIGN_IDENTITY`, which both scripts honour) and
-`notarytool submit`.
+The default build is signed ad-hoc and is **not notarised by Apple**. macOS may
+block a downloaded copy on first launch. Follow
+[Apple's instructions](https://support.apple.com/102445) for opening an app from
+a trusted source. Developer ID signing and notarisation are separate release
+steps; both scripts support a signing identity through `CODESIGN_IDENTITY`.
 
 The app has no Dock icon — look for the camera icon in the menu bar.
 
@@ -254,18 +254,16 @@ interception that SwiftUI does not express well.
 **Main actor by default.** Everything UI-facing is `@MainActor`; only the
 expensive, isolated work — PNG encoding, file writes — hops to a background task.
 
-**Performance details.** The editor redraws in single-digit milliseconds at any
-zoom, which took a few specific things:
+**Rendering and performance.** The canvas limits repeated work while keeping
+the screenshot aligned with annotations across display scales:
 
-* The screenshot is rasterised once at exactly its on-screen pixel size and
-  blitted 1:1. Core Graphics blits a whole-pixel bitmap almost for free but
-  falls into a general resampler for a fractional destination — which is what a
-  zoom transform produces at nearly every level, and it costs 10× more.
+* The screenshot is rasterised at the current drawing context's pixel density.
+  Drawing preserves AppKit's transform, including the canvas origin and backing
+  scale. Cached tiles are invalidated when backing properties change.
 * That bitmap covers a padded region, so panning reuses it instead of
   re-rasterising every frame.
-* Nearest-neighbour when magnifying, smooth when shrinking: measured, each is
-  several times faster than the other in its own direction — and nearest is what
-  you want for inspecting pixels anyway.
+* Nearest-neighbour sampling shows individual pixels when magnifying; smooth
+  sampling is used when shrinking the image.
 * Only the on-screen part of anything is drawn. The transparency checkerboard
   used to iterate the whole content rectangle, which at 1600% is millions of
   squares per frame; it is now clipped to the window and skipped outright for
