@@ -11,19 +11,17 @@ import AppKit
 let application = NSApplication.shared
 application.setActivationPolicy(.accessory)
 
-DispatchQueue.main.async {
-    MainActor.assumeIsolated {
-        var runner = TestRunner()
-        runRendererTests(&runner)
-        runAnnotationTests(&runner)
-        runCanvasTests(&runner)
-        runCanvasDisplayTests(&runner)
-        if !CommandLine.arguments.contains("--rendering-only") {
-            runThumbnailTests(&runner)
-            runLibraryTests(&runner)
-        }
-        runner.finish()
+Task { @MainActor in
+    var runner = TestRunner()
+    runRendererTests(&runner)
+    runAnnotationTests(&runner)
+    runCanvasTests(&runner)
+    runCanvasDisplayTests(&runner)
+    if !CommandLine.arguments.contains("--rendering-only") {
+        runThumbnailTests(&runner)
+        await runLibraryTests(&runner)
     }
+    runner.finish()
 }
 
 application.run()

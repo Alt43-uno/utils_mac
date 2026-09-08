@@ -3,7 +3,7 @@ import AppKit
 /// Pinned screenshots outlive the process, so the library's storage is worth
 /// checking end to end.
 @MainActor
-func runLibraryTests(_ runner: inout TestRunner) {
+func runLibraryTests(_ runner: inout TestRunner) async {
     runner.section("Library")
 
     let settings = TestFixtures.makeSettings(suite: "com.screenshotbooster.tests.library")
@@ -70,6 +70,17 @@ func runLibraryTests(_ runner: inout TestRunner) {
     } else {
         runner.expect(false, "the library index round-trips through JSON")
     }
+
+    // Test deletion of a saved bitmap after the atomic background write has
+    // published it. Checking immediately can race the writer; blocking the
+    // main actor also prevents its completion callback from cleaning up.
+    let originalPath = library.originalURL(for: screenshot).path
+    let deadline = Date().addingTimeInterval(5)
+    while !FileManager.default.fileExists(atPath: originalPath), Date() < deadline {
+        try? await Task.sleep(nanoseconds: 10_000_000)
+    }
+    runner.expect(FileManager.default.fileExists(atPath: originalPath),
+                  "the background write produces a bitmap on disk")
 
     library.remove(id: screenshot.id)
     runner.expect(library.screenshot(with: screenshot.id) == nil, "removing unpins it")
