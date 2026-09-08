@@ -6,18 +6,24 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.2] — 2026-09-08
+
 ### Fixed
 
 - Remove an orphaned screenshot file if its pin is dismissed while its background
   save is still running.
+- Wait for the background write before checking saved-bitmap deletion in tests.
 
 ### Added
 
 - Rendering, display-scale, annotation, thumbnail, and library regression checks
   with isolated temporary storage.
 - GitHub Actions build, test, and DMG artifacts on macOS 26.
+- Repository privacy checks for commit identities, local paths, Finder metadata,
+  and common secret formats.
 - Project documentation, MIT license, contribution and security policies, and
   issue and pull request templates.
+- An English utility catalog with installation and development instructions.
 
 ## [1.0.1] — 2026-09-08
 

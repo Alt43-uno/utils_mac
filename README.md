@@ -34,7 +34,7 @@ releases as they become available.
 
 | Utility | What it does | Requirements | Get started |
 | :--- | :--- | :--- | :--- |
-| **[Screenshot Booster](screenshot_booster/README.md)** | Capture screenshots, keep them pinned, annotate, and share. | macOS 26+ · Apple Silicon or Intel | [Download v1.0.1](https://github.com/Alt43-uno/utils_mac/releases/download/v1.0.1/ScreenshotBooster-1.0.1-universal.dmg) |
+| **[Screenshot Booster](screenshot_booster/README.md)** | Capture screenshots, keep them pinned, annotate, and share. | macOS 26+ · Apple Silicon or Intel | [Download v1.0.2](https://github.com/Alt43-uno/utils_mac/releases/download/v1.0.2/ScreenshotBooster-1.0.2-universal.dmg) |
 
 Requirements and installation steps are specific to each utility. Check its
 documentation before downloading or building.
@@ -61,7 +61,7 @@ upload them to a server.
 
 ### Install
 
-1. [Download the universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/v1.0.1/ScreenshotBooster-1.0.1-universal.dmg).
+1. [Download the universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/v1.0.2/ScreenshotBooster-1.0.2-universal.dmg).
 2. Open it and drag **Screenshot Booster** into **Applications**.
 3. Launch the app and find its camera icon in the menu bar.
 4. Grant **Screen Recording** permission when you first capture. Restart the app if macOS requests it.
