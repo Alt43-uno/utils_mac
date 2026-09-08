@@ -255,6 +255,13 @@ final class CanvasView: NSView, NSTextViewDelegate {
         syncZoomState()
     }
 
+    override func viewDidChangeBackingProperties() {
+        super.viewDidChangeBackingProperties()
+        scaledBase = nil
+        scaledBaseRegion = nil
+        needsDisplay = true
+    }
+
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
         syncZoomState()
@@ -387,40 +394,31 @@ final class CanvasView: NSView, NSTextViewDelegate {
         }
     }
 
-    /// Draws a region of the screenshot as a bitmap rasterised at exactly its
-    /// on-screen pixel size, blitted 1:1.
+    /// Draws a region rasterised at the current context's pixel density while
+    /// preserving AppKit's transform between the canvas and the backing store.
     ///
-    /// This is the single most important thing for smoothness: Core Graphics
-    /// blits a whole-pixel 1:1 bitmap almost for free, but a fractional
-    /// destination — which is what the canvas' zoom transform produces at almost
-    /// every zoom level — drops it into a general resampler an order of
-    /// magnitude slower.
+    /// Pre-scaling keeps repeated redraws cheap without reconstructing device
+    /// coordinates from the window's scale and losing the view's placement.
     /// - Parameters:
     ///   - required: the region that must be covered, i.e. what is on screen.
     ///   - build: the region to rasterise if the cache misses — padded, so that
     ///     panning keeps hitting the same bitmap.
     private func drawRegion(required: CGRect, build: CGRect, in context: CGContext) {
-        let backingScale = window?.backingScaleFactor ?? 2
-        // Device pixels per image pixel.
-        let deviceScale = (viewRect(fromImage: build).width * backingScale) / max(build.width, 1)
+        // The context already includes image zoom and AppKit's backing scale.
+        // A cached/offscreen drawing context can differ from the window's scale.
+        let deviceScale = hypot(context.ctm.a, context.ctm.b)
 
         guard let raster = rasterised(covering: required, build: build, deviceScale: deviceScale) else {
             AnnotationRenderer.drawImage(model.document.base, in: model.document.baseBounds, context: context)
             return
         }
 
-        let onScreen = viewRect(fromImage: raster.region)
         context.saveGState()
-        // Into the backing store's own coordinates. The clip set earlier lives in
-        // device space, so cropping still applies.
-        context.concatenate(context.ctm.inverted())
         context.interpolationQuality = .none
-        // The destination takes the bitmap's own pixel size: a rounding
-        // difference of one pixel is invisible, a fractional size is not.
-        context.draw(raster.image, in: CGRect(x: (onScreen.minX * backingScale).rounded(),
-                                              y: (onScreen.minY * backingScale).rounded(),
-                                              width: CGFloat(raster.image.width),
-                                              height: CGFloat(raster.image.height)))
+        // Use the same image coordinates as annotations and clipping. Resetting
+        // the CTM loses the view origin and any backing-store flip, displacing
+        // the bitmap and exposing the black shadow underneath it.
+        AnnotationRenderer.drawImage(raster.image, in: raster.region, context: context)
         context.restoreGState()
     }
 
