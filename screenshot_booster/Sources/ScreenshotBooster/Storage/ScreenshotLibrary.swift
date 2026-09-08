@@ -94,6 +94,13 @@ final class ScreenshotLibrary: ObservableObject {
                 if let failure {
                     Log.storage.error("Could not store the capture: \(failure.localizedDescription, privacy: .public)")
                     ErrorPresenter.present(failure)
+                    return
+                }
+                // The shot may have been dismissed while the write was in
+                // flight, in which case `remove` deleted a file that did not
+                // exist yet.
+                if self?.screenshot(with: id) == nil {
+                    try? FileManager.default.removeItem(at: url)
                 }
             }
         }

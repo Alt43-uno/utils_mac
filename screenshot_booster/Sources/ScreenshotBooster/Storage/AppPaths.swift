@@ -4,11 +4,21 @@ import Foundation
 enum AppPaths {
     static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.screenshotbooster.app"
 
+    #if SCREENSHOT_BOOSTER_TESTS
+    /// Compiled only into the test executable; never shares the user's library.
+    static let testDirectory = FileManager.default.temporaryDirectory
+        .appendingPathComponent("ScreenshotBoosterTests-\(UUID().uuidString)", isDirectory: true)
+    #endif
+
     /// `~/Library/Application Support/<bundle id>`
     static var supportDirectory: URL {
+        #if SCREENSHOT_BOOSTER_TESTS
+        return testDirectory.appendingPathComponent("Support", isDirectory: true)
+        #else
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support")
         return base.appendingPathComponent(bundleIdentifier, isDirectory: true)
+        #endif
     }
 
     /// Original, unedited bitmaps of pinned screenshots.
@@ -18,7 +28,11 @@ enum AppPaths {
 
     /// Flattened images produced for drag & drop.
     static var dragCacheDirectory: URL {
+        #if SCREENSHOT_BOOSTER_TESTS
+        return testDirectory.appendingPathComponent("Drags", isDirectory: true)
+        #else
         FileManager.default.temporaryDirectory.appendingPathComponent("ScreenshotBoosterDrags", isDirectory: true)
+        #endif
     }
 
     static var libraryIndexURL: URL {

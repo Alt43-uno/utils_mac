@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: macos-26
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Report the toolchain
+        id: toolchain
+        run: |
+          sw_vers
+          swift --version
+          echo "sdk=$(xcrun --show-sdk-version)" >> "$GITHUB_OUTPUT"
+          echo "SDK: $(xcrun --show-sdk-version)"
+
+      - name: Build
+        working-directory: screenshot_booster
+        run: ./Scripts/build_app.sh --universal
+
+      - name: Test
+        working-directory: screenshot_booster
+        run: ./Scripts/run_tests.sh
+
+      - name: Package
+        working-directory: screenshot_booster
+        run: ./Scripts/make_dmg.sh --no-build
+
+      - name: Upload the disk image
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-booster-dmg
+          path: screenshot_booster/dist/*.dmg
+          if-no-files-found: error

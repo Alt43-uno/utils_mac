@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Editors
+.idea/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+.vscode/
+
+# CodeGraph index (machine-local)
+.codegraph/

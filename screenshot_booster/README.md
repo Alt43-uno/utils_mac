@@ -1,5 +1,11 @@
 # Screenshot Booster
 
+[![Build](https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml/badge.svg)](https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../LICENSE)
+![macOS 26+](https://img.shields.io/badge/macOS-26%2B-black?logo=apple)
+![Swift](https://img.shields.io/badge/Swift-5%20mode-orange?logo=swift)
+![Dependencies: none](https://img.shields.io/badge/dependencies-none-brightgreen)
+
 A native macOS screenshot app built with Swift, AppKit and SwiftUI.
 
 Its defining behaviour: **every screenshot you take stays pinned as a floating
@@ -12,6 +18,11 @@ keyboard focus.
 ```
 
 ---
+
+## Contents
+
+- [Requirements](#requirements) · [Build and run](#build-and-run) · [Using it](#using-it)
+- [Architecture](#architecture) · [Tests](#tests) · [Contributing](#contributing)
 
 ## Requirements
 
@@ -273,6 +284,25 @@ are debounced.
 
 ---
 
+## Tests
+
+```bash
+./Scripts/run_tests.sh
+```
+
+Compiles the sources together with `Tests/` and runs checks
+covering the renderer's output, annotation geometry and hit testing, the zoom
+and pan maths, where the canvas actually puts pixels at each zoom level, the
+thumbnail stack's layout in every corner, and the library's storage round-trip.
+No test framework, in keeping with the rest of the project.
+
+Storage suites use a unique temporary directory and clean up afterwards; the
+application's library and drag cache are kept separate. Use
+`./Scripts/run_tests.sh --rendering-only` for rendering and editor checks.
+What the suites cannot cover is
+anything the compositor owns — Liquid Glass does not appear in offscreen
+renders — or anything needing Screen Recording permission.
+
 ## Data locations
 
 | What | Where |
@@ -284,3 +314,13 @@ are debounced.
 
 Removing the application support folder resets the pinned stack; deleting the
 preferences domain resets every setting.
+
+## Contributing
+
+Issues and pull requests are welcome — see [CONTRIBUTING.md](../CONTRIBUTING.md)
+for the build, the checks, and the conventions the code follows. Security
+reports go through [SECURITY.md](../SECURITY.md).
+
+## License
+
+[MIT](../LICENSE).
