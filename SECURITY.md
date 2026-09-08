@@ -2,12 +2,12 @@
 
 ## Reporting a vulnerability
 
-This repository is currently private. Report security issues through a
-[repository issue](https://github.com/Alt43-uno/utils_mac/issues/new), which is
-visible to people with repository access. Include the macOS version, the build
-you are running, and the steps to reproduce, without attaching credentials or
-sensitive screenshots. Private vulnerability reporting must be configured
-before this policy can direct reports to GitHub Security Advisories.
+Please do not disclose vulnerabilities in public issues. Use **Report a
+vulnerability** in the repository's Security tab when private reporting is
+available. Otherwise, contact the maintainer through an existing private
+channel before sharing details. Include the macOS version, the build you are
+running, and the steps to reproduce, without attaching credentials or sensitive
+screenshots.
 
 ## What this software touches
 

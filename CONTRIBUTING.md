@@ -59,6 +59,12 @@ Match the surrounding code. A few conventions the codebase follows:
 
 ## Commits and pull requests
 
+Use your GitHub `noreply` email for commits. Before pushing, run
+`python3 screenshot_booster/Scripts/check_privacy.py` from the repository root.
+CI checks the published history for non-noreply identities, Finder metadata,
+local home paths, and common secret formats. Do not commit screenshots, local
+databases, credentials, or personal data; this check cannot detect every case.
+
 Write commit subjects in the imperative mood ("Add scrolling capture"), and say
 in the body why the change is needed rather than restating the diff. For pull
 requests, describe what you changed, how you verified it, and — if it touches

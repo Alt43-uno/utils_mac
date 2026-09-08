@@ -17,6 +17,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check repository privacy
+        run: python3 screenshot_booster/Scripts/check_privacy.py
 
       - name: Report the toolchain
         id: toolchain
