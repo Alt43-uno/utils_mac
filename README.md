@@ -34,7 +34,7 @@ releases as they become available.
 
 | Utility | What it does | Requirements | Get started |
 | :--- | :--- | :--- | :--- |
-| **[Screenshot Booster](screenshot_booster/README.md)** | Capture screenshots, keep them pinned, annotate, and share. | macOS 26+ · Apple Silicon or Intel | [Download v1.1.0](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg) |
+| **[Screenshot Booster](screenshot_booster/README.md)** | Capture, annotate, share, and recognize text and QR codes. | macOS 26+ · Apple Silicon or Intel | [Download v1.1.0](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg) |
 
 Requirements and installation steps are specific to each utility. Check its
 documentation before downloading or building.
@@ -50,6 +50,7 @@ stays pinned as a floating thumbnail until you dismiss it, ready to edit, copy,
 save, or drag into another application.
 
 - **Capture your way.** Grab an area, a window, or the screen under the pointer.
+- **Recognize text and QR codes together.** Press `Control + Shift + 4`, select an area, and get editable text and decoded QR contents in a separate results window. Copy results or open detected web links in your browser. Processing stays on your Mac.
 - **Keep screenshots handy.** Manage a stack of thumbnails in your chosen screen corner.
 - **Add clear annotations.** Use arrows, shapes, text, freehand drawing, highlighting, blur, and pixelation.
 - **Keep edits flexible.** Move and resize annotations, undo changes, zoom, and crop while preserving the original.
@@ -80,10 +81,12 @@ and Intel. Developer tools are only needed when building from source.
 | Capture an area | `Control + Shift + 1` |
 | Capture a window | `Control + Shift + 2` |
 | Capture the screen under the pointer | `Control + Shift + 3` |
+| Select an area and recognize text and QR codes | `Control + Shift + 4` |
 | Cancel a capture | `Esc` |
 
 Click a thumbnail to edit it, drag it into another app to share it, or right-click
-for more actions. Capture shortcuts can be changed in **Settings → Shortcuts**.
+for more actions, including **Recognize Text & QR Codes…**. Capture and recognition
+shortcuts can be changed in **Settings → Shortcuts**.
 
 **[Full guide: tools, gestures, settings, and architecture →](screenshot_booster/README.md)**
 

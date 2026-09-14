@@ -2,6 +2,9 @@
 
 [← All utilities](../README.md)
 
+[Download 1.1.0 for Apple Silicon and Intel](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg)
+· [Changelog](../CHANGELOG.md#110--2026-09-14)
+
 [![Build](https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml/badge.svg)](https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../LICENSE)
 ![macOS 26+](https://img.shields.io/badge/macOS-26%2B-black?logo=apple)
@@ -25,6 +28,7 @@ keyboard focus.
 ## Contents
 
 - [Requirements](#requirements) · [Build and run](#build-and-run) · [Using it](#using-it)
+- [Text and QR recognition](#text-and-qr-recognition)
 - [Architecture](#architecture) · [Tests](#tests) · [Contributing](#contributing)
 
 ## Requirements
@@ -199,7 +203,9 @@ pinned screenshot.
 ### Text and QR recognition
 
 Press **⌃⇧4** anywhere to select an area of the screen and immediately extract
-its text and QR codes. The screenshot stays pinned and only a compact recognition results window opens. Escape cancels selection. Change or disable this shortcut in
+its text and QR codes. The screenshot stays pinned and a compact results window
+opens without the screenshot editor. Escape cancels selection. Change or disable
+this shortcut in
 **Settings › Shortcuts › Recognize text & QR codes from area**.
 
 Choose **Recognize Text & QR Codes…** from a thumbnail's right-click
@@ -213,6 +219,7 @@ Apple Vision, with automatic language detection. Review or correct the extracted
 text, then choose **Copy Text**. QR recognition lists each decoded payload with
 its own **Copy** button; **Copy All** copies the edited text and all QR payloads
 separated by blank lines.
+
 Web links found in text or QR codes have an **Open Link** button that opens your
 default browser. Other QR contents can be copied. Recognition never opens the
 screenshot editor or navigates to a link automatically.
@@ -320,6 +327,9 @@ Compiles the sources together with `Tests/` and runs checks
 covering the renderer's output, annotation geometry and hit testing, the zoom
 and pan maths, where the canvas actually puts pixels at each zoom level, the
 thumbnail stack's layout in every corner, and the library's storage round-trip.
+Recognition checks cover English and Russian text, mixed text/QR images, multiple
+QR codes, crop and annotation handling, cancellation, browser links, and shortcut
+persistence. Cursor checks cover toolbar and status controls at different zoom levels.
 No test framework, in keeping with the rest of the project.
 
 Storage suites use a unique temporary directory and clean up afterwards; the
