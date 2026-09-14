@@ -104,6 +104,8 @@ struct ThumbnailItemView: View {
         Button("Edit…") { actions.open(screenshot) }
         Button("Copy") { actions.copy(screenshot) }
         Divider()
+        Button("Recognize Text & QR Codes…", systemImage: "text.viewfinder") { actions.recognize(screenshot) }
+        Divider()
         Button("Save") { actions.save(screenshot) }
         Button("Save As…") { actions.saveAs(screenshot) }
         Button("Reveal in Finder") { actions.reveal(screenshot) }

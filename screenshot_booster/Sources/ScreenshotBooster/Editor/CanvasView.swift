@@ -110,6 +110,18 @@ final class CanvasView: NSView, NSTextViewDelegate {
         return CGRect(origin: origin, size: size)
     }
 
+    /// Floating controls are siblings above this full-window canvas. Tracking
+    /// the whole visible rect would let tool cursors leak underneath those controls.
+    var cursorTrackingRect: CGRect {
+        CGRect(x: bounds.minX + contentInsets.left,
+               y: bounds.minY + contentInsets.bottom,
+               width: max(0, bounds.width - contentInsets.left - contentInsets.right),
+               height: max(0, bounds.height - contentInsets.top - contentInsets.bottom))
+            .intersection(visibleRect)
+    }
+
+    var toolCursorRect: CGRect { contentRect.intersection(cursorTrackingRect) }
+
     /// Panning is only possible along an axis where the image overflows the
     /// viewport, and it stops at the image's edges.
     private static func clampedPan(_ value: CGFloat, content: CGFloat, viewport: CGFloat) -> CGFloat {
@@ -241,8 +253,8 @@ final class CanvasView: NSView, NSTextViewDelegate {
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         if let trackingArea { removeTrackingArea(trackingArea) }
-        let area = NSTrackingArea(rect: bounds,
-                                  options: [.activeInKeyWindow, .mouseMoved, .mouseEnteredAndExited, .inVisibleRect, .cursorUpdate],
+        let area = NSTrackingArea(rect: cursorTrackingRect,
+                                  options: [.activeInKeyWindow, .mouseMoved, .mouseEnteredAndExited, .cursorUpdate],
                                   owner: self,
                                   userInfo: nil)
         addTrackingArea(area)

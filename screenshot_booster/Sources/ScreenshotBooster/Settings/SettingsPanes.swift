@@ -109,6 +109,13 @@ struct ShortcutsSettingsPane: View {
                             .frame(width: 150, height: 24)
                     }
                 }
+                LabeledContent("Recognize text & QR codes from area") {
+                    ShortcutRecorder(combo: Binding(
+                        get: { settings.recognitionHotkey },
+                        set: { settings.setRecognitionHotkey($0); onHotkeyChange() }
+                    ))
+                    .frame(width: 150, height: 24)
+                }
             }
 
             Section {

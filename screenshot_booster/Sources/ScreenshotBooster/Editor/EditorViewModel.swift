@@ -29,6 +29,7 @@ final class EditorViewModel: ObservableObject {
     @Published private(set) var canUndo = false
     @Published private(set) var canRedo = false
     @Published private(set) var status: StatusMessage?
+    var onRecognize: ((CGImage) -> Void)?
 
     /// `fit` follows the window; `factor` is an explicit pixels-to-points scale.
     enum ZoomMode: Equatable {
@@ -312,6 +313,15 @@ final class EditorViewModel: ObservableObject {
             throw AppError.imageEncodingFailed
         }
         return image
+    }
+
+    func recognize() {
+        guard let onRecognize else { return }
+        do {
+            onRecognize(try flattenedImage())
+        } catch {
+            report(error)
+        }
     }
 
     func copyToClipboard() {

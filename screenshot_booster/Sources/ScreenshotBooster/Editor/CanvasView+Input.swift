@@ -126,7 +126,7 @@ extension CanvasView {
     }
 
     override func mouseMoved(with event: NSEvent) {
-        updateCursor(for: imagePoint(fromView: convert(event.locationInWindow, from: nil)))
+        cursor(at: convert(event.locationInWindow, from: nil)).set()
     }
 
     /// Middle-button drag pans, the way most image editors do it.
@@ -136,7 +136,11 @@ extension CanvasView {
     }
 
     override func cursorUpdate(with event: NSEvent) {
-        updateCursor(for: imagePoint(fromView: convert(event.locationInWindow, from: nil)))
+        cursor(at: convert(event.locationInWindow, from: nil)).set()
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        cursor(at: convert(event.locationInWindow, from: nil)).set()
     }
 
     override func mouseExited(with event: NSEvent) {
@@ -247,25 +251,26 @@ extension CanvasView {
         model.addAnnotation(finished)
     }
 
-    private func updateCursor(for point: CGPoint) {
+    func cursor(at viewPoint: CGPoint) -> NSCursor {
+        guard toolCursorRect.contains(viewPoint) else { return .arrow }
+        let point = imagePoint(fromView: viewPoint)
         if textEditor != nil {
-            NSCursor.iBeam.set()
-            return
+            return .iBeam
         }
         switch model.tool {
         case .select:
             if let selected = model.selectedAnnotation,
                let handle = AnnotationHitTesting.handle(at: point, for: selected, tolerance: tolerance) {
-                cursor(for: handle.cursorKind).set()
+                return cursor(for: handle.cursorKind)
             } else if AnnotationHitTesting.annotation(at: point, in: model.document.annotations, tolerance: tolerance) != nil {
-                NSCursor.openHand.set()
+                return .openHand
             } else {
-                NSCursor.arrow.set()
+                return .arrow
             }
         case .text:
-            NSCursor.iBeam.set()
+            return .iBeam
         default:
-            NSCursor.crosshair.set()
+            return .crosshair
         }
     }
 

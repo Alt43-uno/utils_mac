@@ -33,30 +33,35 @@ final class CaptureCoordinator {
     }
 
     /// Entry point used by hotkeys and menu items.
-    func capture(_ mode: CaptureMode) {
+    func capture(_ mode: CaptureMode, onCompletion: ((Screenshot) -> Void)? = nil) {
         let now = Date()
         guard now.timeIntervalSince(lastRequestAt) > repeatThreshold else { return }
         lastRequestAt = now
         // While a selection overlay is up, Escape (or a click) is the way out —
         // stacking a second overlay would only confuse things.
         guard !isCapturing else { return }
-        Task { await performCapture(mode) }
+        // Reserve the capture before yielding so two queued hotkeys cannot race.
+        isCapturing = true
+        Task { await performCapture(mode, onCompletion: onCompletion) }
     }
 
     // MARK: - Flow
 
-    private func performCapture(_ mode: CaptureMode) async {
-        guard ScreenPermission.ensureGranted(settings: settings) else { return }
-        isCapturing = true
+    private func performCapture(_ mode: CaptureMode, onCompletion: ((Screenshot) -> Void)?) async {
         defer { isCapturing = false }
+        guard ScreenPermission.ensureGranted(settings: settings) else { return }
 
         do {
+            let screenshot: Screenshot
             switch mode {
             case .fullScreen:
-                try await captureFullScreen()
+                screenshot = try await captureFullScreen()
             case .area, .window:
-                try await captureInteractively(mode: mode)
+                screenshot = try await captureInteractively(mode: mode)
             }
+            // The callback belongs to this capture only; cancellation or failure
+            // cannot accidentally trigger OCR on a later ordinary screenshot.
+            onCompletion?(screenshot)
         } catch {
             overlay.dismiss()
             report(error)
@@ -76,17 +81,17 @@ final class CaptureCoordinator {
         }
     }
 
-    private func captureFullScreen() async throws {
+    private func captureFullScreen() async throws -> Screenshot {
         let snapshots = try await captureService.captureAllDisplays()
         let target = preferredSnapshot(in: snapshots)
-        try finish(image: target.image,
+        return try finish(image: target.image,
                    scale: target.scale,
                    mode: .fullScreen,
                    sourceName: displayName(for: target),
                    screen: target.screen)
     }
 
-    private func captureInteractively(mode: CaptureMode) async throws {
+    private func captureInteractively(mode: CaptureMode) async throws -> Screenshot {
         let snapshots = try await captureService.captureAllDisplays()
         // Window targets are best-effort: area selection still works without them.
         let targets = (try? await captureService.windowTargets()) ?? []
@@ -100,7 +105,7 @@ final class CaptureCoordinator {
             guard let cropped = snapshot.image.cropping(to: pixelRect) else {
                 throw AppError.captureFailed(underlying: "the selected region could not be cropped")
             }
-            try finish(image: cropped,
+            return try finish(image: cropped,
                        scale: snapshot.scale,
                        mode: .area,
                        sourceName: nil,
@@ -109,7 +114,7 @@ final class CaptureCoordinator {
         case .window(let target):
             let image = try await captureService.captureWindow(target)
             let screen = NSScreen.screens.first { $0.frame.intersects(target.frame) } ?? NSScreenProvider.primary
-            try finish(image: image,
+            return try finish(image: image,
                        scale: screen?.backingScaleFactor ?? 2,
                        mode: .window,
                        sourceName: target.applicationName,
@@ -122,7 +127,7 @@ final class CaptureCoordinator {
                         scale: CGFloat,
                         mode: CaptureMode,
                         sourceName: String?,
-                        screen: NSScreen?) throws {
+                        screen: NSScreen?) throws -> Screenshot {
         let screenshot = try library.add(image: image, scale: scale, mode: mode, sourceName: sourceName)
 
         if settings.copyToClipboardAfterCapture {
@@ -156,6 +161,7 @@ final class CaptureCoordinator {
 
         Log.capture.info("Captured \(mode.rawValue, privacy: .public) \(image.width, privacy: .public)×\(image.height, privacy: .public)")
         onCaptured?(screenshot, screen)
+        return screenshot
     }
 
     // MARK: - Helpers

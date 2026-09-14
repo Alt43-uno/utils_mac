@@ -12,6 +12,7 @@ final class AppCoordinator {
     private let captureService: CaptureService
     private let captureCoordinator: CaptureCoordinator
     private let editorManager: EditorWindowManager
+    private let recognitionManager: RecognitionWindowManager
     private let hotkeyManager = HotkeyManager()
     private var thumbnailController: ThumbnailStackController!
     private var statusItemController: StatusItemController!
@@ -25,7 +26,11 @@ final class AppCoordinator {
         self.captureCoordinator = CaptureCoordinator(settings: settings,
                                                      library: library,
                                                      captureService: captureService)
-        self.editorManager = EditorWindowManager(library: library, settings: settings)
+        let recognitionManager = RecognitionWindowManager()
+        self.recognitionManager = recognitionManager
+        self.editorManager = EditorWindowManager(library: library, settings: settings) { [weak recognitionManager] image in
+            recognitionManager?.present(image: image)
+        }
 
         thumbnailController = ThumbnailStackController(library: library,
                                                        settings: settings,
@@ -44,11 +49,19 @@ final class AppCoordinator {
         }
 
         hotkeyManager.onAction = { [weak self] action in
-            self?.captureCoordinator.capture(action.mode)
+            guard let self else { return }
+            if let mode = action.mode {
+                self.captureCoordinator.capture(mode)
+            } else {
+                self.captureCoordinator.capture(.area) { [weak self] screenshot in
+                    self?.editorManager.recognize(screenshot)
+                }
+            }
         }
         settings.$hotkeys
+            .combineLatest(settings.$recognitionHotkey)
             .receive(on: RunLoop.main)
-            .sink { [weak self] combos in self?.applyHotkeys(combos) }
+            .sink { [weak self] combos, recognition in self?.applyHotkeys(combos, recognition: recognition) }
             .store(in: &cancellables)
 
         statusItemController.install()
@@ -69,6 +82,7 @@ final class AppCoordinator {
         hotkeyManager.unregisterAll()
         cancellables.removeAll()
         editorManager.closeAll()
+        recognitionManager.close()
         thumbnailController.tearDown()
         library.persistNow()
         ScreenshotLibrary.clearDragCache()
@@ -85,7 +99,7 @@ final class AppCoordinator {
             settingsWindowController = SettingsWindowController(settings: settings,
                                                                 onHotkeyChange: { [weak self] in
                                                                     guard let self else { return }
-                                                                    self.applyHotkeys(self.settings.hotkeys)
+                                                                    self.applyHotkeys(self.settings.hotkeys, recognition: self.settings.recognitionHotkey)
                                                                 })
             settingsWindowController?.onClose = { [weak self] in
                 self?.settingsWindowController = nil
@@ -96,13 +110,13 @@ final class AppCoordinator {
 
     // MARK: - Wiring helpers
 
-    private func applyHotkeys(_ combos: [CaptureMode: KeyCombo]) {
-        let failures = hotkeyManager.apply(combos)
+    private func applyHotkeys(_ combos: [CaptureMode: KeyCombo], recognition: KeyCombo?) {
+        let failures = hotkeyManager.apply(combos, recognition: recognition)
         guard !failures.isEmpty else { return }
         for failure in failures {
-            Log.hotkeys.error("Could not register shortcut for \(failure.mode.rawValue, privacy: .public)")
+            Log.hotkeys.error("Could not register shortcut for \(failure.title, privacy: .public)")
         }
-        let title = failures[0].mode.title
+        let title = failures[0].title
         // Deferred so a conflict detected during launch cannot stall it.
         DispatchQueue.main.async {
             ErrorPresenter.present(AppError.hotkeyRegistrationFailed(name: title),
@@ -120,6 +134,9 @@ final class AppCoordinator {
             },
             copy: { [weak self] screenshot in
                 self?.copyToClipboard(screenshot)
+            },
+            recognize: { [weak self] screenshot in
+                self?.editorManager.recognize(screenshot)
             },
             save: { [weak self] screenshot in
                 self?.save(screenshot, revealing: false)
@@ -235,10 +252,12 @@ final class AppCoordinator {
         let area = settings.hotkeys[.area]?.displayString ?? "—"
         let window = settings.hotkeys[.window]?.displayString ?? "—"
         let screen = settings.hotkeys[.fullScreen]?.displayString ?? "—"
+        let recognition = settings.recognitionHotkey?.displayString ?? "—"
         alert.informativeText = """
         Capture area: \(area)
         Capture window: \(window)
         Capture screen: \(screen)
+        Recognize text & QR codes from area: \(recognition)
 
         Every shot stays pinned in the corner of your screen until you close it.
         macOS will ask for Screen Recording permission the first time you capture.

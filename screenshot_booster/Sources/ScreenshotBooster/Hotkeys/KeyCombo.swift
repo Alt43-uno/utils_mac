@@ -50,4 +50,5 @@ struct KeyCombo: Codable, Equatable, Hashable {
     static let captureArea = KeyCombo(keyCode: UInt16(kVK_ANSI_1), modifierFlags: [.control, .shift])
     static let captureWindow = KeyCombo(keyCode: UInt16(kVK_ANSI_2), modifierFlags: [.control, .shift])
     static let captureFullScreen = KeyCombo(keyCode: UInt16(kVK_ANSI_3), modifierFlags: [.control, .shift])
+    static let recognizeContent = KeyCombo(keyCode: UInt16(kVK_ANSI_4), modifierFlags: [.control, .shift])
 }

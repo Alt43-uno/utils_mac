@@ -10,6 +10,7 @@ final class SettingsStore: ObservableObject {
 
     private enum Key {
         static let hotkeys = "hotkeys"
+        static let recognitionHotkey = "textRecognitionHotkey"
         static let saveDirectory = "saveDirectoryPath"
         static let copyToClipboard = "copyToClipboardAfterCapture"
         static let autoSaveToDisk = "autoSaveToDisk"
@@ -32,6 +33,15 @@ final class SettingsStore: ObservableObject {
 
     @Published var hotkeys: [CaptureMode: KeyCombo] {
         didSet { persistHotkeys() }
+    }
+
+    @Published var recognitionHotkey: KeyCombo? {
+        didSet {
+            // JSON null preserves an explicitly disabled shortcut across launches.
+            if let data = try? JSONEncoder().encode(recognitionHotkey) {
+                defaults.set(data, forKey: Key.recognitionHotkey)
+            }
+        }
     }
 
     @Published var saveDirectory: URL {
@@ -115,6 +125,11 @@ final class SettingsStore: ObservableObject {
             }
         }
         self.hotkeys = combos
+        if let data = defaults.data(forKey: Key.recognitionHotkey) {
+            self.recognitionHotkey = (try? JSONDecoder().decode(KeyCombo?.self, from: data)) ?? nil
+        } else {
+            self.recognitionHotkey = .recognizeContent
+        }
 
         if let path = defaults.string(forKey: Key.saveDirectory), !path.isEmpty {
             self.saveDirectory = URL(fileURLWithPath: path, isDirectory: true)
@@ -148,6 +163,7 @@ final class SettingsStore: ObservableObject {
         var updated = hotkeys
         // Keep shortcuts unique: clear the combo from any other action first.
         if let combo {
+            if recognitionHotkey == combo { recognitionHotkey = nil }
             for (key, value) in updated where value == combo && key != mode {
                 updated.removeValue(forKey: key)
             }
@@ -158,8 +174,16 @@ final class SettingsStore: ObservableObject {
         hotkeys = updated
     }
 
+    func setRecognitionHotkey(_ combo: KeyCombo?) {
+        if let combo {
+            hotkeys = hotkeys.filter { $0.value != combo }
+        }
+        recognitionHotkey = combo
+    }
+
     func resetHotkeysToDefaults() {
         hotkeys = [.area: .captureArea, .window: .captureWindow, .fullScreen: .captureFullScreen]
+        recognitionHotkey = .recognizeContent
     }
 
     /// Format + quality used for exports, as a single value.

@@ -87,6 +87,8 @@ struct EditorToolbarView: View {
                 model.copyToClipboard()
             }
             Menu {
+                Button("Recognize Text & QR Codes…", systemImage: "text.viewfinder") { model.recognize() }
+                Divider()
                 Button("Save As…") { model.saveAs() }
                 Button("Copy to Clipboard") { model.copyToClipboard() }
                 Divider()
@@ -94,6 +96,8 @@ struct EditorToolbarView: View {
                     .disabled(model.document.cropRect == nil)
             } label: {
                 Image(systemName: "ellipsis")
+                    .frame(width: 24, height: 26)
+                    .editorHoverHighlight()
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
@@ -111,12 +115,15 @@ struct EditorToolbarView: View {
         } label: {
             Image(systemName: "square.and.arrow.down")
                 .font(.system(size: 13, weight: .semibold))
-                .frame(width: 30, height: EditorChrome.toolbarHeight)
+                .frame(width: EditorChrome.toolbarHeight, height: EditorChrome.toolbarHeight)
+                .foregroundStyle(.white)
+                .glassEffect(.regular.tint(.accentColor).interactive(), in: .capsule)
+                .editorHoverHighlight(cornerRadius: EditorChrome.toolbarHeight / 2)
         }
-        .buttonStyle(.glassProminent)
-        // Without this the prominent style renders a rounded rectangle, which
-        // reads as a stray square next to a row of capsules.
-        .buttonBorderShape(.capsule)
+        // A system glass button style adds padding outside the label. Draw the
+        // glass at the shared toolbar height so Save aligns with every pill.
+        .buttonStyle(.plain)
+        .frame(width: EditorChrome.toolbarHeight, height: EditorChrome.toolbarHeight)
         .help("Save (⌘S)")
         .layoutPriority(3)
     }
@@ -160,10 +167,11 @@ private struct IconButton: View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.system(size: 12, weight: .medium))
-                .frame(width: 24, height: 22)
+                .frame(width: 24, height: 26)
                 .contentShape(Rectangle())
+                .editorHoverHighlight()
         }
-        .buttonStyle(.borderless)
+        .buttonStyle(.plain)
         .disabled(!isEnabled)
         .help(help)
     }
@@ -188,6 +196,8 @@ private struct ColorControls: View {
                                                   lineWidth: isSelected(preset) ? 2 : 0.5)
                         )
                         .contentShape(Circle())
+                        .padding(3)
+                        .editorHoverHighlight(cornerRadius: 10)
                 }
                 .buttonStyle(.plain)
                 .help("Use this colour")
@@ -226,6 +236,8 @@ private struct CustomColorButton: View {
             }
             .frame(width: 14, height: 14)
             .contentShape(Circle())
+            .padding(3)
+            .editorHoverHighlight(cornerRadius: 10)
         }
         .buttonStyle(.plain)
         .help("Choose a custom colour")
@@ -294,5 +306,7 @@ private struct StepperControl: View {
                 .frame(width: 18, alignment: .leading)
         }
         .fixedSize()
+        .frame(height: 26)
+        .editorHoverHighlight()
     }
 }

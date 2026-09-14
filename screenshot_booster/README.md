@@ -17,6 +17,7 @@ keyboard focus.
 
 ```
 ⌃⇧1  capture an area      ⌃⇧2  capture a window      ⌃⇧3  capture the screen
+⌃⇧4  select an area and recognize text and QR codes
 ```
 
 ---
@@ -120,9 +121,10 @@ directly and always works.
 | Capture area | `⌃⇧1` |
 | Capture window | `⌃⇧2` |
 | Capture screen (the one under the pointer) | `⌃⇧3` |
+| Select an area and recognize text and QR codes | `⌃⇧4` |
 
-All three are configurable in *Settings › Shortcuts*, and all three are also in
-the menu bar menu.
+All four are configurable in *Settings › Shortcuts*. The three capture commands
+are also in the menu bar menu.
 
 During an area capture:
 
@@ -146,7 +148,7 @@ corner. They stay until you dismiss them and they come back after a restart.
 | Two-finger swipe left | Dismiss the thumbnail |
 | ✕ | Remove the thumbnail |
 | Drag | Drop the image into Telegram, Discord, Finder, a browser… |
-| Right click | Copy · Save · Save As… · Reveal in Finder · Delete · Clear All |
+| Right click | Copy · Recognize Text & QR Codes… · Save · Save As… · Reveal in Finder · Delete · Clear All |
 
 The swipe follows your fingers and only commits past roughly a third of the
 card's width, so a stray gesture springs back. It is read from trackpad scroll
@@ -194,12 +196,37 @@ Editing is **non-destructive**: the original bitmap is never modified, so the
 crop can be reset and every object stays editable. Closing the editor keeps the
 pinned screenshot.
 
+### Text and QR recognition
+
+Press **⌃⇧4** anywhere to select an area of the screen and immediately extract
+its text and QR codes. The screenshot stays pinned and only a compact recognition results window opens. Escape cancels selection. Change or disable this shortcut in
+**Settings › Shortcuts › Recognize text & QR codes from area**.
+
+Choose **Recognize Text & QR Codes…** from a thumbnail's right-click
+menu or the editor's **…** menu. Recognition uses the full-resolution screenshot
+with its current crop and annotations, including unsaved edits. Crop first to
+recognize only a particular area.
+
+The same action recognizes both text and QR codes and shows them in one result panel.
+Text recognition supports English, Russian and other languages supported by
+Apple Vision, with automatic language detection. Review or correct the extracted
+text, then choose **Copy Text**. QR recognition lists each decoded payload with
+its own **Copy** button; **Copy All** copies the edited text and all QR payloads
+separated by blank lines.
+Web links found in text or QR codes have an **Open Link** button that opens your
+default browser. Other QR contents can be copied. Recognition never opens the
+screenshot editor or navigates to a link automatically.
+
+Processing runs locally on your Mac in the background. The result panel shows
+progress, empty results and errors; **Cancel** closes it without changing the
+clipboard. No additional permission or third-party service is required.
+
 ### Settings
 
 * **General** — clipboard, automatic saving, destination folder, PNG/JPEG and
   quality, capture sound, launch at login, whether the pointer is included, and
   whether the app hides its own windows from captures
-* **Shortcuts** — record the three global shortcuts, `⌫` clears one
+* **Shortcuts** — record capture and text/QR recognition shortcuts, `⌫` clears one
 * **Thumbnails** — corner, which display to follow, card size, restore on launch
 * **About** — version, Screen Recording status, editor shortcut reference
 
@@ -215,6 +242,7 @@ Sources/ScreenshotBooster/
 ├── Editor/       View model, renderer, canvas, hit testing, editor window
 ├── Hotkeys/      Carbon global shortcut registration and key formatting
 ├── Models/       Screenshot, document, annotation, tools, text layout
+├── Recognition/  Local Vision text/QR recognition and result panel
 ├── Settings/     Preferences store, panes, shortcut recorder, launch at login
 ├── Storage/      Library, paths, export, pasteboard
 └── Thumbnails/   Floating panel, stack layout, cards, drag & drop

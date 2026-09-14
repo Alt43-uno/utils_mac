@@ -28,5 +28,29 @@ extension View {
         padding(.horizontal, horizontalPadding)
             .frame(height: EditorChrome.toolbarHeight)
             .glassEffect(.regular, in: .capsule)
+            .editorHoverHighlight(cornerRadius: EditorChrome.toolbarHeight / 2, opacity: 0.04)
+    }
+
+    func editorHoverHighlight(cornerRadius: CGFloat = 6, opacity: Double = 0.12) -> some View {
+        modifier(EditorHoverHighlight(cornerRadius: cornerRadius, opacity: opacity))
+    }
+}
+
+private struct EditorHoverHighlight: ViewModifier {
+    let cornerRadius: CGFloat
+    let opacity: Double
+    @Environment(\.isEnabled) private var isEnabled
+    @State private var isHovering = false
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(Color.primary.opacity(isHovering && isEnabled ? opacity : 0))
+                    .allowsHitTesting(false)
+            }
+            .onHover { hovering in
+                withAnimation(.easeOut(duration: 0.12)) { isHovering = hovering }
+            }
     }
 }

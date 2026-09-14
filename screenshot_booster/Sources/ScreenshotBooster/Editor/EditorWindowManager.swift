@@ -8,11 +8,13 @@ final class EditorWindowManager {
     private var controllers: [UUID: EditorWindowController] = [:]
     private let library: ScreenshotLibrary
     private let settings: SettingsStore
+    private let onRecognize: (CGImage) -> Void
     private var cancellables: Set<AnyCancellable> = []
 
-    init(library: ScreenshotLibrary, settings: SettingsStore) {
+    init(library: ScreenshotLibrary, settings: SettingsStore, onRecognize: @escaping (CGImage) -> Void) {
         self.library = library
         self.settings = settings
+        self.onRecognize = onRecognize
 
         // Closing a pinned shot should also close the window that edits it.
         library.$screenshots
@@ -24,6 +26,21 @@ final class EditorWindowManager {
     }
 
     var hasOpenEditors: Bool { !controllers.isEmpty }
+
+    func recognize(_ screenshot: Screenshot) {
+        do {
+            // Use live edits when available, without opening or focusing an editor.
+            let image: CGImage
+            if let existing = controllers[screenshot.id] {
+                image = try existing.model.flattenedImage()
+            } else {
+                image = try library.flattenedImage(for: screenshot)
+            }
+            onRecognize(image)
+        } catch {
+            ErrorPresenter.present(error)
+        }
+    }
 
     /// Opens (or re-focuses) the editor for a screenshot.
     func open(_ screenshot: Screenshot) {
@@ -37,6 +54,7 @@ final class EditorWindowManager {
                                         document: document,
                                         library: library,
                                         settings: settings)
+            model.onRecognize = onRecognize
             let controller = EditorWindowController(model: model)
             controller.onClose = { [weak self] id in
                 self?.controllers.removeValue(forKey: id)

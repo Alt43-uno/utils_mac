@@ -17,6 +17,9 @@ Task { @MainActor in
     runAnnotationTests(&runner)
     runCanvasTests(&runner)
     runCanvasDisplayTests(&runner)
+    await runRecognitionTests(&runner)
+    runHotkeyTests(&runner)
+    runCursorTests(&runner)
     if !CommandLine.arguments.contains("--rendering-only") {
         runThumbnailTests(&runner)
         await runLibraryTests(&runner)

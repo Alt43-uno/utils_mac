@@ -9,14 +9,18 @@ final class HotkeyManager {
         case captureArea = 1
         case captureWindow = 2
         case captureFullScreen = 3
+        case recognizeContent = 4
 
-        var mode: CaptureMode {
+        var mode: CaptureMode? {
             switch self {
             case .captureArea: return .area
             case .captureWindow: return .window
             case .captureFullScreen: return .fullScreen
+            case .recognizeContent: return nil
             }
         }
+
+        var title: String { mode?.title ?? "Recognize Text & QR Codes" }
 
         init?(mode: CaptureMode) {
             switch mode {
@@ -50,11 +54,12 @@ final class HotkeyManager {
     /// Replaces all registrations. Returns the actions that could not be bound
     /// (usually because another app already owns the combination).
     @discardableResult
-    func apply(_ combos: [CaptureMode: KeyCombo]) -> [Action] {
+    func apply(_ combos: [CaptureMode: KeyCombo], recognition: KeyCombo?) -> [Action] {
         unregisterAll()
         var failures: [Action] = []
         for action in Action.allCases {
-            guard let combo = combos[action.mode], combo.isValid else { continue }
+            let configured = action == .recognizeContent ? recognition : action.mode.flatMap { combos[$0] }
+            guard let combo = configured, combo.isValid else { continue }
             if !register(action: action, combo: combo) {
                 failures.append(action)
             }

@@ -7,6 +7,7 @@ struct ThumbnailActions {
     var open: (Screenshot) -> Void
     var delete: (Screenshot) -> Void
     var copy: (Screenshot) -> Void
+    var recognize: (Screenshot) -> Void
     var save: (Screenshot) -> Void
     var saveAs: (Screenshot) -> Void
     var reveal: (Screenshot) -> Void
