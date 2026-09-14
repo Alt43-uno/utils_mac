@@ -6,6 +6,30 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-09-14
+
+### Added
+
+- Recognize text and QR codes together with one command, processed locally using
+  Apple Vision, including English and Russian text and multiple QR codes.
+- Select a screen area and recognize its contents with **Control-Shift-4**.
+  The shortcut can be changed or disabled in Settings.
+- A separate recognition results window with editable text, individual and
+  combined copying, and buttons to open detected web links in the default browser.
+- Recognition from thumbnail and editor menus, respecting current crop and edits
+  without opening the screenshot editor.
+- Regression checks for recognition, mixed text/QR images, shortcut persistence,
+  link detection, and editor cursor boundaries.
+
+### Fixed
+
+- Restore the arrow cursor over editor controls and empty space while keeping
+  tool cursors over the image, including when zoomed in.
+- Add hover feedback to style and action controls and align the Save button with
+  the other toolbar capsules.
+- Reserve capture state before asynchronous work and keep recognition callbacks
+  scoped to their capture so cancellation cannot affect a later screenshot.
+
 ## [1.0.2] — 2026-09-08
 
 ### Fixed
