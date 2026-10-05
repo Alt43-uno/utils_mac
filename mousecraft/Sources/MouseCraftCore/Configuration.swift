@@ -4,7 +4,7 @@ public enum Modifier: UInt64, Codable, CaseIterable, Identifiable {
     case none = 0, shift = 131072, control = 262144, option = 524288, command = 1048576
     public var id: UInt64 { rawValue }
     public var title: String {
-        switch self { case .none: return "Нет"; case .shift: return "⇧ Shift"
+        switch self { case .none: return "None"; case .shift: return "⇧ Shift"
         case .control: return "⌃ Control"; case .option: return "⌥ Option"; case .command: return "⌘ Command" }
     }
     public func matches(_ flags: UInt64) -> Bool { self != .none && flags & rawValue != 0 }
@@ -14,7 +14,7 @@ public enum Modifier: UInt64, Codable, CaseIterable, Identifiable {
 public enum Smoothness: String, Codable, CaseIterable, Identifiable {
     case off, regular, high
     public var id: String { rawValue }
-    public var title: String { switch self { case .off: return "Без сглаживания"; case .regular: return "Баланс"; case .high: return "Плавно" } }
+    public var title: String { switch self { case .off: return "Off"; case .regular: return "Balanced"; case .high: return "Smooth" } }
     public var timeConstant: Double { switch self { case .off: return 0; case .regular: return 0.055; case .high: return 0.11 } }
 }
 
@@ -62,11 +62,11 @@ public enum Trigger: String, Codable, CaseIterable, Identifiable {
     public var id: String { rawValue }
     public var title: String {
         switch self {
-        case .click: return "Щелчок"; case .doubleClick: return "Двойной щелчок"; case .tripleClick: return "Тройной щелчок"
-        case .hold: return "Удержание"; case .dragUp: return "Потянуть вверх"; case .dragDown: return "Потянуть вниз"
-        case .dragLeft: return "Потянуть влево"; case .dragRight: return "Потянуть вправо"
-        case .scrollUp: return "Удерживать + колесо вверх"; case .scrollDown: return "Удерживать + колесо вниз"
-        case .pan: return "Удерживать + прокрутка 360°"
+        case .click: return "Click"; case .doubleClick: return "Double Click"; case .tripleClick: return "Triple Click"
+        case .hold: return "Hold"; case .dragUp: return "Drag Up"; case .dragDown: return "Drag Down"
+        case .dragLeft: return "Drag Left"; case .dragRight: return "Drag Right"
+        case .scrollUp: return "Hold + Scroll Up"; case .scrollDown: return "Hold + Scroll Down"
+        case .pan: return "Hold + 360° Scrolling"
         }
     }
 }
@@ -79,22 +79,22 @@ public enum ActionKind: String, Codable, CaseIterable, Identifiable {
     public var id: String { rawValue }
     public var title: String {
         switch self {
-        case .none: return "Отключить кнопку"; case .back: return "Назад"; case .forward: return "Вперёд"
-        case .missionControl: return "Mission Control"; case .appExpose: return "Окна приложения"
-        case .desktop: return "Показать рабочий стол"; case .applications: return "Все приложения / Launchpad"
-        case .spaceLeft: return "Рабочий стол слева"; case .spaceRight: return "Рабочий стол справа"
-        case .lookup: return "Найти в словаре"; case .quickLook: return "Quick Look"
-        case .zoomIn: return "Увеличить (⌘+)"; case .zoomOut: return "Уменьшить (⌘−)"; case .resetZoom: return "Сбросить масштаб (⌘0)"
-        case .copy: return "Копировать"; case .paste: return "Вставить"; case .undo: return "Отменить"; case .redo: return "Повторить"
-        case .closeTab: return "Закрыть вкладку"; case .newTab: return "Новая вкладка"
-        case .nextTab: return "Следующая вкладка"; case .previousTab: return "Предыдущая вкладка"
-        case .middleClick: return "Средний щелчок"; case .leftClick: return "Левый щелчок"; case .rightClick: return "Правый щелчок"
-        case .shortcut: return "Своя комбинация клавиш"; case .openApplication: return "Открыть приложение"; case .togglePause: return "Пауза MouseCraft"
-        case .nativeZoomIn: return "Pinch: увеличить · экспериментально"
-        case .nativeZoomOut: return "Pinch: уменьшить · экспериментально"
-        case .smartZoom: return "Smart Zoom · экспериментально"
-        case .swipeLeft: return "Нативный свайп влево · экспериментально"
-        case .swipeRight: return "Нативный свайп вправо · экспериментально"
+        case .none: return "Disable Button"; case .back: return "Back"; case .forward: return "Forward"
+        case .missionControl: return "Mission Control"; case .appExpose: return "App Exposé"
+        case .desktop: return "Show Desktop"; case .applications: return "Applications / Launchpad"
+        case .spaceLeft: return "Desktop to the Left"; case .spaceRight: return "Desktop to the Right"
+        case .lookup: return "Look Up"; case .quickLook: return "Quick Look"
+        case .zoomIn: return "Zoom In (⌘+)"; case .zoomOut: return "Zoom Out (⌘−)"; case .resetZoom: return "Reset Zoom (⌘0)"
+        case .copy: return "Copy"; case .paste: return "Paste"; case .undo: return "Undo"; case .redo: return "Redo"
+        case .closeTab: return "Close Tab"; case .newTab: return "New Tab"
+        case .nextTab: return "Next Tab"; case .previousTab: return "Previous Tab"
+        case .middleClick: return "Middle Click"; case .leftClick: return "Left Click"; case .rightClick: return "Right Click"
+        case .shortcut: return "Custom Keyboard Shortcut"; case .openApplication: return "Open App"; case .togglePause: return "Pause MouseCraft"
+        case .nativeZoomIn: return "Pinch: Zoom In · Experimental"
+        case .nativeZoomOut: return "Pinch: Zoom Out · Experimental"
+        case .smartZoom: return "Smart Zoom · Experimental"
+        case .swipeLeft: return "Native Swipe Left · Experimental"
+        case .swipeRight: return "Native Swipe Right · Experimental"
         }
     }
 }
@@ -238,12 +238,12 @@ public enum ConfigurationError: LocalizedError {
     case unsupportedVersion, tooManyRules, duplicateProfile, invalidProfile, invalidRule, duplicateRule
     public var errorDescription: String? {
         switch self {
-        case .unsupportedVersion: return "Эта версия настроек не поддерживается."
-        case .tooManyRules: return "Слишком много правил или повторяющиеся идентификаторы."
-        case .duplicateProfile: return "Профили приложений повторяются."
-        case .invalidProfile: return "Укажите bundle ID приложения."
-        case .invalidRule: return "Некорректная кнопка, клавиша, модификаторы или путь приложения."
-        case .duplicateRule: return "Для этой кнопки, жеста и модификаторов уже есть назначение."
+        case .unsupportedVersion: return "This settings version is not supported."
+        case .tooManyRules: return "Too many rules or duplicate identifiers."
+        case .duplicateProfile: return "Duplicate app profiles."
+        case .invalidProfile: return "Enter the app's bundle ID."
+        case .invalidRule: return "Invalid button, key, modifiers, or app path."
+        case .duplicateRule: return "An assignment already exists for this button, gesture, and modifiers."
         }
     }
 }

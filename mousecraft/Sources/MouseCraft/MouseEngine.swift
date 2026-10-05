@@ -9,8 +9,8 @@ final class MouseEngine: ObservableObject {
     @Published private(set) var accessibility = false
     @Published private(set) var inputMonitoring = false
     @Published private(set) var conflict = false
-    @Published private(set) var status = "Выключено"
-    @Published private(set) var lastInput = "Нажмите кнопку мыши после включения"
+    @Published private(set) var status = "Off"
+    @Published private(set) var lastInput = "Press a mouse button after enabling MouseCraft"
     @Published private(set) var activeApplication = ""
     @Published private(set) var receivedScrolls = 0
     @Published private(set) var processedScrolls = 0
@@ -81,20 +81,20 @@ final class MouseEngine: ObservableObject {
                                                       conflictingDriver: conflict, bypassedApplication: !next.enabled)
         if readiness != .needsAccessibility { permissionTimer?.invalidate(); permissionTimer = nil }
         switch readiness {
-        case .disabled: stop(); status = "Выключено"
+        case .disabled: stop(); status = "Off"
         case .needsAccessibility:
-            stop(); status = "Нужен доступ: Универсальный доступ"
+            stop(); status = "Accessibility permission required"
             if permissionTimer == nil {
                 let timer = Timer(timeInterval: 2, repeats: true) { [weak self] _ in self?.refresh() }
                 timer.tolerance = 0.4; permissionTimer = timer; RunLoop.main.add(timer, forMode: .common)
             }
-        case .conflictingDriver: stop(); status = "Сначала выключите Mac Mouse Fix"
-        case .bypassedApplication: stop(); status = "Исключение для \(activeApplication)"
+        case .conflictingDriver: stop(); status = "Turn Off Mac Mouse Fix First"
+        case .bypassedApplication: stop(); status = "Bypassed for \(activeApplication)"
         case .ready: start()
         }
     }
     private func start() {
-        if let tap, CFMachPortIsValid(tap), CGEvent.tapIsEnabled(tap: tap) { running = true; status = "Работает"; return }
+        if let tap, CFMachPortIsValid(tap), CGEvent.tapIsEnabled(tap: tap) { running = true; status = "Running"; return }
         if tap != nil { stop() }
         let events: [CGEventType] = [.scrollWheel, .otherMouseDown, .otherMouseUp, .otherMouseDragged, .mouseMoved, .leftMouseDown, .rightMouseDown]
         let mask = events.reduce(CGEventMask(0)) { $0 | (CGEventMask(1) << $1.rawValue) }
@@ -104,12 +104,12 @@ final class MouseEngine: ObservableObject {
         }
         guard let port = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
                                            eventsOfInterest: mask, callback: callback, userInfo: Unmanaged.passUnretained(self).toOpaque()) else {
-            status = "Не удалось подключиться к мыши. Проверьте разрешения и перезапустите приложение."; return
+            status = "Could not connect to the mouse. Check permissions and restart MouseCraft."; return
         }
         tap = port
         source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, port, 0)
         if let source { CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes) }
-        CGEvent.tapEnable(tap: port, enable: true); running = true; status = "Работает"
+        CGEvent.tapEnable(tap: port, enable: true); running = true; status = "Running"
     }
     func stop() {
         resetTransient()
@@ -148,7 +148,7 @@ final class MouseEngine: ObservableObject {
         switch type {
         case .otherMouseDown:
             let modifierNames = Modifier.allCases.filter { $0.matches(flags) }.map(\.title).joined(separator: " ")
-            lastInput = "Кнопка \(button) · \(modifierNames.isEmpty ? "без модификаторов" : modifierNames)"
+            lastInput = "Button \(button) · \(modifierNames.isEmpty ? "no modifiers" : modifierNames)"
             result = router.down(button: button, flags: flags, time: now, configuration: current, doubleClickInterval: NSEvent.doubleClickInterval)
         case .otherMouseUp: result = router.up(button: button, time: now, doubleClickInterval: NSEvent.doubleClickInterval)
         case .mouseMoved, .otherMouseDragged:
@@ -162,7 +162,7 @@ final class MouseEngine: ObservableObject {
             if event.getIntegerValueField(.scrollWheelEventIsContinuous) != 0 {
                 skippedContinuousScrolls += 1
                 if now - diagnosticsTime > 0.25 {
-                    lastInput = "Непрерывная прокрутка: пропущена (трекпад / высокоточное колесо)"; diagnosticsTime = now
+                    lastInput = "Continuous scrolling: skipped (trackpad / high-resolution wheel)"; diagnosticsTime = now
                 }
                 smoother.reset(); endScroll(); endMagnify(); return Unmanaged.passUnretained(event)
             }
@@ -180,7 +180,7 @@ final class MouseEngine: ObservableObject {
                     if current.scroll.nativeZoom {
                         if !magnifying, let began = NativeGestureEvents.magnify(0, phase: .began) { EventOutput.post(began); magnifying = true }
                         if let changed = NativeGestureEvents.magnify(Double(direction) * min(0.2, abs(y) / 400), phase: .changed) { EventOutput.post(changed) }
-                        else { store.message = "Pinch недоступен. Отключите нативное масштабирование." }
+                        else { store.message = "Pinch is unavailable. Turn off Native Pinch." }
                         lastMagnify = now; ensureTimer()
                     } else if now - lastZoom >= 0.055 { executor.perform(MouseAction(direction > 0 ? .zoomIn : .zoomOut)); lastZoom = now }
                     smoother.reset(); endScroll(); return nil
@@ -193,7 +193,7 @@ final class MouseEngine: ObservableObject {
                     scrollFlags = outputFlags
                     if current.scroll.smoothness == .off { EventOutput.scroll(delta, flags: scrollFlags) }
                     else { smoother.add(delta); ensureTimer() }
-                    if now - diagnosticsTime > 0.25 { lastInput = String(format: "Колесо обрабатывается · X %.0f · Y %.0f", x, y); diagnosticsTime = now }
+                    if now - diagnosticsTime > 0.25 { lastInput = String(format: "Processing wheel · X %.0f · Y %.0f", x, y); diagnosticsTime = now }
                     return nil
                 }
             }

@@ -22,18 +22,18 @@ TASK_STAGE="$(mktemp -d "$TASK_ROOT/build/installer.XXXXXX")"
 trap 'rm -rf "$TASK_STAGE"' EXIT
 ditto "$TASK_APP" "$TASK_STAGE/MouseCraft.app"
 ln -s /Applications "$TASK_STAGE/Applications"
-cat > "$TASK_STAGE/Установка.txt" <<'TEXT'
-MouseCraft — установка
+cat > "$TASK_STAGE/Installation.txt" <<'TEXT'
+MouseCraft — Installation
 
-1. Завершите предыдущую копию MouseCraft через его меню.
-2. Перетащите MouseCraft в Applications («Программы»).
-3. Извлеките этот диск и запустите MouseCraft из «Программы».
-4. В «Обзор» нажмите «Настроить Универсальный доступ» и включите MouseCraft.
-   Также разрешите «Мониторинг ввода», если он ещё не выдан.
-5. Включите обработку мыши. Статус должен смениться на «Обработка работает».
+1. Quit any previous copy of MouseCraft using its menu.
+2. Drag MouseCraft into Applications.
+3. Eject this disk and open MouseCraft from Applications.
+4. In Overview, click Set Up Accessibility and enable MouseCraft in System Settings.
+   Also grant Input Monitoring if it is not already enabled.
+5. Enable MouseCraft. Its status should say "Processing is active".
 
-Текущие настройки не удаляются. После обновления локальной подписи macOS может
-потребовать повторно включить разрешение. Это локальная сборка без notarization.
+Your existing settings are retained. After an update, macOS may require you to
+re-enable permissions. This build is signed ad hoc and is not notarized.
 TEXT
 hdiutil create -volname "MouseCraft $TASK_VERSION" -srcfolder "$TASK_STAGE" -format UDZO -ov "$TASK_ROOT/dist/$TASK_ASSET.dmg"
 hdiutil verify "$TASK_ROOT/dist/$TASK_ASSET.dmg"
@@ -41,7 +41,7 @@ mkdir -p "$TASK_ROOT/.build/pkg-scripts"
 cat > "$TASK_ROOT/.build/pkg-scripts/preinstall" <<'SCRIPT'
 #!/bin/bash
 if pgrep -x MouseCraft >/dev/null; then
-    echo 'Завершите MouseCraft через его меню и повторите установку.' >&2
+    echo 'Quit MouseCraft using its menu and try installing again.' >&2
     exit 1
 fi
 exit 0
@@ -58,4 +58,4 @@ pkgbuild --root "$TASK_PAYLOAD" --component-plist "$TASK_ROOT/.build/pkg-compone
     --identifier app.mousecraft.installer --version "$TASK_VERSION" \
     --scripts "$TASK_ROOT/.build/pkg-scripts" "$TASK_ROOT/dist/$TASK_ASSET.pkg"
 (cd "$TASK_ROOT/dist" && shasum -a 256 "$TASK_ASSET.dmg" "$TASK_ASSET.pkg" > "$TASK_ASSET.sha256")
-echo "DMG и PKG готовы в $TASK_ROOT/dist"
+echo "DMG and PKG installers are ready in $TASK_ROOT/dist"

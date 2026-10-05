@@ -21,15 +21,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSTool
         }
         engine = MouseEngine(store: store)
         let menu = NSMenu(); let appMenuItem = NSMenuItem(); let appMenu = NSMenu()
-        let preferences = NSMenuItem(title: "Настройки MouseCraft…", action: #selector(showSettings), keyEquivalent: ","); preferences.target = self
-        appMenu.addItem(preferences); appMenu.addItem(.separator()); appMenu.addItem(withTitle: "Завершить MouseCraft", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let preferences = NSMenuItem(title: "MouseCraft Settings…", action: #selector(showSettings), keyEquivalent: ","); preferences.target = self
+        appMenu.addItem(preferences); appMenu.addItem(.separator()); appMenu.addItem(withTitle: "Quit MouseCraft", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appMenuItem.submenu = appMenu; menu.addItem(appMenuItem)
-        let editItem = NSMenuItem(); let edit = NSMenu(title: "Правка")
-        edit.addItem(withTitle: "Копировать", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        edit.addItem(withTitle: "Вставить", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-        edit.addItem(withTitle: "Выбрать всё", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let editItem = NSMenuItem(); let edit = NSMenu(title: "Edit")
+        edit.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         editItem.submenu = edit; menu.addItem(editItem)
-        let viewItem = NSMenuItem(); let viewMenu = NSMenu(title: "Вид")
+        let viewItem = NSMenuItem(); let viewMenu = NSMenu(title: "View")
         for (index, pane) in SettingsPane.allCases.enumerated() {
             let command = NSMenuItem(title: pane.rawValue, action: #selector(selectPaneFromMenu(_:)), keyEquivalent: String(index + 1))
             command.target = self; command.tag = index; viewMenu.addItem(command)
@@ -89,9 +89,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSTool
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems(); menu.autoenablesItems = false
         let status = NSMenuItem(title: engine.status, action: nil, keyEquivalent: ""); status.isEnabled = false; menu.addItem(status)
-        add(store.configuration.enabled ? "Приостановить MouseCraft" : "Включить MouseCraft", action: #selector(toggle), menu: menu)
-        add("Настройки…", action: #selector(showSettings), menu: menu)
-        menu.addItem(.separator()); add("Завершить MouseCraft", action: #selector(quit), menu: menu)
+        add(store.configuration.enabled ? "Pause MouseCraft" : "Enable MouseCraft", action: #selector(toggle), menu: menu)
+        add("Settings…", action: #selector(showSettings), menu: menu)
+        menu.addItem(.separator()); add("Quit MouseCraft", action: #selector(quit), menu: menu)
     }
     private func add(_ title: String, action: Selector, menu: NSMenu) { let item = NSMenuItem(title: title, action: action, keyEquivalent: ""); item.target = self; menu.addItem(item) }
     @objc private func toggle() { store.configuration.enabled.toggle(); engine.refresh() }

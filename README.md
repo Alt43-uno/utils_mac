@@ -25,7 +25,7 @@ Universal installers include both Apple Silicon and Intel binaries.
 
 | Application | What it does | Requirements | Download |
 | :--- | :--- | :--- | :--- |
-| **[MouseCraft](mousecraft/README.md)** | Smooth wheel scrolling, button gestures, and profiles for individual apps. | macOS 13+ | [0.2.0 · DMG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.dmg) · [PKG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.pkg) |
+| **[MouseCraft](mousecraft/README.md)** | Smooth wheel scrolling, button gestures, and profiles for individual apps. | macOS 13+ | [0.2.1 · DMG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.dmg) · [PKG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.pkg) |
 | **[Screenshot Booster](screenshot_booster/README.md)** | Capture, annotate, pin, and recognize text and QR codes. | macOS 26+ | [1.1.0 · DMG](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg) |
 
 ## MouseCraft
@@ -51,20 +51,20 @@ control. No trial, subscription, account, telemetry, or license checks.
 
 ### Install MouseCraft
 
-1. [Download the universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.dmg), open it, and drag **MouseCraft** into **Applications**.
-   Alternatively, use the [PKG installer](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.pkg).
+1. [Download the universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.dmg), open it, and drag **MouseCraft** into **Applications**.
+   Alternatively, use the [PKG installer](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.pkg).
 2. Eject the disk and launch the copy in Applications. Quit any previous copy
    before updating; your settings are retained.
-3. Open **Overview / Обзор** and grant **Accessibility / Универсальный доступ**
-   and **Input Monitoring / Мониторинг ввода** in System Settings.
-4. Enable MouseCraft. The status must say **Processing is active / Обработка работает**.
+3. Open **Overview** and grant **Accessibility**
+   and **Input Monitoring** in System Settings.
+4. Enable MouseCraft. The status must say **Processing is active**.
 5. Adjust scrolling. For middle-button panning on a website, turn off
-   **Buttons and gestures / Кнопки и жесты → Включить кнопки и жесты**.
+   **Buttons & Gestures → Enable Buttons & Gestures**.
 
-The current interface is in Russian. The menu bar provides pause, settings,
+The interface and installer instructions are in English. The menu bar provides pause, settings,
 and quit commands; closing the settings window keeps processing active.
 
-**0.2.0 is an early release.** Trackpads, Magic Mouse, and high-resolution wheels
+**0.2.1 is an early release.** Trackpads, Magic Mouse, and high-resolution wheels
 that report continuous input pass through unchanged. Native pinch, Smart Zoom,
 and swipes are experimental; interactive Spaces gestures and per-device profiles
 are not implemented. See [compatibility and feature status](mousecraft/FEATURE_PARITY.md).
@@ -75,8 +75,8 @@ An update may require re-enabling permissions. No script grants permissions or
 removes Gatekeeper protections automatically.
 
 **[Full guide in Russian →](mousecraft/README.md)** ·
-**[Release notes →](https://github.com/Alt43-uno/utils_mac/releases/tag/mousecraft-v0.2.0)** ·
-**[SHA-256 checksums →](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.sha256)**
+**[Release notes →](https://github.com/Alt43-uno/utils_mac/releases/tag/mousecraft-v0.2.1)** ·
+**[SHA-256 checksums →](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.sha256)**
 
 ## Screenshot Booster
 

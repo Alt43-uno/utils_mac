@@ -77,7 +77,7 @@ final class ActionExecutor {
         case .shortcut: EventOutput.key(action.keyCode, flags: action.modifiers)
         case .openApplication:
             let url = URL(fileURLWithPath: action.applicationPath)
-            guard Bundle(url: url) != nil else { notify("Приложение не найдено: \(url.lastPathComponent)"); return }
+            guard Bundle(url: url) != nil else { notify("App not found: \(url.lastPathComponent)"); return }
             NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration()) { _, error in
                 if let error { DispatchQueue.main.async { self.notify(error.localizedDescription) } }
             }
@@ -94,7 +94,7 @@ final class ActionExecutor {
         }
     }
     private func postNative(_ event: CGEvent?) {
-        guard let event else { notify("Нативный жест недоступен в этой версии macOS. Выберите действие через клавиши."); return }
+        guard let event else { notify("This native gesture is unavailable on this macOS version. Choose a keyboard-based action."); return }
         EventOutput.post(event)
     }
     /// Respect the user's existing shortcuts; never rewrite com.apple.symbolichotkeys.
@@ -102,7 +102,7 @@ final class ActionExecutor {
         let domain = UserDefaults.standard.persistentDomain(forName: "com.apple.symbolichotkeys")
         let hotkeys = domain?["AppleSymbolicHotKeys"] as? [String: Any]
         if let entry = hotkeys?[String(id)] as? [String: Any] {
-            if let enabled = entry["enabled"] as? Bool, !enabled { notify("Системное сочетание отключено (\(id)). Включите его в настройках клавиатуры macOS."); return }
+            if let enabled = entry["enabled"] as? Bool, !enabled { notify("System shortcut is disabled (\(id)). Enable it in macOS Keyboard settings."); return }
             if let value = entry["value"] as? [String: Any], let params = value["parameters"] as? [NSNumber], params.count >= 3 {
                 let code = params[1].intValue
                 if (0...127).contains(code) { EventOutput.key(UInt16(code), flags: params[2].uint64Value); return }
@@ -119,7 +119,7 @@ final class ActionExecutor {
             let path = "/System/Applications/Launchpad.app"
             if FileManager.default.fileExists(atPath: path) { NSWorkspace.shared.open(URL(fileURLWithPath: path)) }
             else { NSWorkspace.shared.open(URL(fileURLWithPath: "/Applications")) }
-        default: notify("Системное сочетание не найдено.")
+        default: notify("System shortcut not found.")
         }
     }
 }

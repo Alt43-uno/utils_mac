@@ -15,7 +15,7 @@ final class SettingsStore: ObservableObject {
             do { configuration = try JSONDecoder().decode(Configuration.self, from: Data(contentsOf: url)).validated() }
             catch {
                 configuration = Configuration(); protectsUnreadableFile = true
-                message = "Не удалось прочитать настройки: \(error.localizedDescription). Перед сохранением исходный файл будет скопирован в settings.backup-*.json."
+                message = "Could not read settings: \(error.localizedDescription). The original file will be copied to settings.backup-*.json before saving."
             }
         } else { configuration = Configuration() }
     }
@@ -38,7 +38,7 @@ final class SettingsStore: ObservableObject {
         do {
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(configuration).write(to: destination, options: .atomic)
-            message = "Настройки экспортированы."
+            message = "Settings exported."
         } catch { message = error.localizedDescription }
     }
     func importSettings() {
@@ -46,16 +46,16 @@ final class SettingsStore: ObservableObject {
         guard panel.runModal() == .OK, let source = panel.url else { return }
         do {
             let size = try source.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
-            guard size <= 2_000_000 else { throw NSError(domain: "MouseCraft", code: 1, userInfo: [NSLocalizedDescriptionKey: "Файл настроек слишком большой."]) }
+            guard size <= 2_000_000 else { throw NSError(domain: "MouseCraft", code: 1, userInfo: [NSLocalizedDescriptionKey: "The settings file is too large."]) }
             var imported = try JSONDecoder().decode(Configuration.self, from: Data(contentsOf: source)).validated()
             imported.enabled = false
-            configuration = imported; message = "Настройки импортированы. Проверьте назначения и включите MouseCraft."
+            configuration = imported; message = "Settings imported. Review the assignments and enable MouseCraft."
         } catch { message = error.localizedDescription }
     }
     func addProfile() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.applicationBundle]; panel.directoryURL = URL(fileURLWithPath: "/Applications")
         guard panel.runModal() == .OK, let url = panel.url, let bundle = Bundle(url: url), let id = bundle.bundleIdentifier else { return }
-        guard !configuration.profiles.contains(where: { $0.bundleID == id }) else { message = "Профиль этого приложения уже существует."; return }
+        guard !configuration.profiles.contains(where: { $0.bundleID == id }) else { message = "A profile already exists for this app."; return }
         configuration.profiles.append(AppProfile(name: url.deletingPathExtension().lastPathComponent, bundleID: id))
     }
 }

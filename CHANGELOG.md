@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [MouseCraft 0.2.1] — 2026-10-05
+
+### Changed
+
+- MouseCraft now uses English throughout its settings, menus, accessibility labels, diagnostics, action names, and error messages.
+- English is declared as the app's supported language for system-provided controls.
+- DMG installation instructions and installer messages are now in English.
+- Download links and setup guides point to the new version and use the English interface labels.
+- Existing settings and button assignments remain compatible.
+
 ## [MouseCraft 0.2.0] — 2026-10-05
 
 First public release of MouseCraft, the second application in utils_mac.

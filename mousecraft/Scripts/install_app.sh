@@ -12,11 +12,11 @@ test -d "$TASK_APP"
 codesign --verify --deep --strict "$TASK_APP"
 mkdir -p "$TASK_DESTINATION"
 if [ ! -w "$TASK_DESTINATION" ]; then
-    echo "Нет доступа к $TASK_DESTINATION. Установите через DMG или PKG; пароль администратора вводится в macOS." >&2
+    echo "Cannot write to $TASK_DESTINATION. Use the DMG or PKG installer; macOS handles administrator authentication." >&2
     exit 1
 fi
 if pgrep -x MouseCraft >/dev/null; then
-    echo 'Завершите MouseCraft через его меню перед установкой.' >&2
+    echo 'Quit MouseCraft using its menu before installing.' >&2
     exit 1
 fi
 # Keep a complete copy of the old installation until the replacement is verified.
@@ -33,5 +33,5 @@ if ! mv "$TASK_STAGING/MouseCraft.app" "$TASK_DESTINATION/MouseCraft.app"; then
     if [ -n "${TASK_BACKUP_DIR:-}" ]; then mv "$TASK_BACKUP_DIR/MouseCraft.app" "$TASK_DESTINATION/MouseCraft.app"; fi
     exit 1
 fi
-echo "Установлено: $TASK_DESTINATION/MouseCraft.app"
-echo 'Настройки сохранены. Запускайте эту копию и выдавайте разрешения именно ей.'
+echo "Installed: $TASK_DESTINATION/MouseCraft.app"
+echo 'Your settings are retained. Launch this copy and grant permissions to it.'
