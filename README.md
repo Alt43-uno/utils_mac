@@ -1,43 +1,82 @@
 <h1 align="center">utils_mac</h1>
 
 <p align="center">
-  <strong>A growing collection of utilities for macOS.</strong><br>
-  Small, focused tools for everyday work on your Mac.
+  <strong>Native utilities for your Mac.</strong><br>
+  Smooth mouse control. Better screenshots. Free, local, and open source.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Platform-macOS-111827?logo=apple&amp;logoColor=white" alt="Platform: macOS">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22c55e" alt="License: MIT"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="MIT license"></a>
+  <a href="https://github.com/Alt43-uno/utils_mac/actions/workflows/mousecraft.yml"><img src="https://github.com/Alt43-uno/utils_mac/actions/workflows/mousecraft.yml/badge.svg" alt="MouseCraft build and tests"></a>
   <a href="https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml"><img src="https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml/badge.svg" alt="Screenshot Booster build and tests"></a>
 </p>
 
 <p align="center">
-  <a href="#utilities">Explore utilities</a>
-  &nbsp; · &nbsp;
-  <a href="https://github.com/Alt43-uno/utils_mac/releases">Downloads</a>
-  &nbsp; · &nbsp;
-  <a href="CONTRIBUTING.md">Contributing</a>
-  &nbsp; · &nbsp;
+  <a href="#applications">Applications</a> ·
+  <a href="https://github.com/Alt43-uno/utils_mac/releases">Releases</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a> ·
   <a href="CHANGELOG.md">Changelog</a>
 </p>
 
----
+## Applications
 
-**utils_mac is a home for multiple macOS utilities.** Each tool lives in its own
-directory, with documentation for its features, setup, and requirements.
+Each application has its own source, requirements, version, and downloads.
+Universal installers include both Apple Silicon and Intel binaries.
 
-Screenshot Booster is the first available application. More utilities will be
-developed and published here over time, with documentation and downloadable
-releases as they become available.
-
-## Utilities
-
-| Utility | What it does | Requirements | Get started |
+| Application | What it does | Requirements | Download |
 | :--- | :--- | :--- | :--- |
-| **[Screenshot Booster](screenshot_booster/README.md)** | Capture, annotate, share, and recognize text and QR codes. | macOS 26+ · Apple Silicon or Intel | [Download v1.1.0](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg) |
+| **[MouseCraft](mousecraft/README.md)** | Smooth wheel scrolling, button gestures, and profiles for individual apps. | macOS 13+ | [0.2.0 · DMG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.dmg) · [PKG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.pkg) |
+| **[Screenshot Booster](screenshot_booster/README.md)** | Capture, annotate, pin, and recognize text and QR codes. | macOS 26+ | [1.1.0 · DMG](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg) |
 
-Requirements and installation steps are specific to each utility. Check its
-documentation before downloading or building.
+## MouseCraft
+
+<img src="docs/assets/mousecraft.png" alt="MouseCraft app icon" width="96" height="96">
+
+**Make your wheel mouse feel at home on macOS.**
+
+MouseCraft is a free mouse utility with a native settings window and a menu bar
+control. No trial, subscription, account, telemetry, or license checks.
+
+- **Smooth scrolling:** choose the feel, speed, direction, and slow-wheel precision.
+- **Wheel modifiers:** Shift for horizontal scrolling, Command for zoom, Control
+  for faster movement, and Option for precision; each modifier is configurable.
+- **Buttons and gestures:** clicks, holds, drags, and scrolling while holding a
+  button. Presets for three- and five-button mice, custom shortcuts, and app actions.
+- **Independent switches:** turn off button gestures while keeping smooth scrolling.
+  Middle-button presses, drags, and releases then reach web canvases unchanged.
+- **App profiles:** inherit settings, change scrolling and assignments, or bypass
+  processing for a specific application.
+- **Native settings:** grouped controls, keyboard navigation with ⌘1–⌘5, launch
+  at login, connection diagnostics, and JSON import/export.
+
+### Install MouseCraft
+
+1. [Download the universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.dmg), open it, and drag **MouseCraft** into **Applications**.
+   Alternatively, use the [PKG installer](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.pkg).
+2. Eject the disk and launch the copy in Applications. Quit any previous copy
+   before updating; your settings are retained.
+3. Open **Overview / Обзор** and grant **Accessibility / Универсальный доступ**
+   and **Input Monitoring / Мониторинг ввода** in System Settings.
+4. Enable MouseCraft. The status must say **Processing is active / Обработка работает**.
+5. Adjust scrolling. For middle-button panning on a website, turn off
+   **Buttons and gestures / Кнопки и жесты → Включить кнопки и жесты**.
+
+The current interface is in Russian. The menu bar provides pause, settings,
+and quit commands; closing the settings window keeps processing active.
+
+**0.2.0 is an early release.** Trackpads, Magic Mouse, and high-resolution wheels
+that report continuous input pass through unchanged. Native pinch, Smart Zoom,
+and swipes are experimental; interactive Spaces gestures and per-device profiles
+are not implemented. See [compatibility and feature status](mousecraft/FEATURE_PARITY.md).
+
+The release is signed ad hoc, without Developer ID notarization. macOS may block
+its first launch; follow [Apple's instructions for opening an app you trust](https://support.apple.com/102445).
+An update may require re-enabling permissions. No script grants permissions or
+removes Gatekeeper protections automatically.
+
+**[Full guide in Russian →](mousecraft/README.md)** ·
+**[Release notes →](https://github.com/Alt43-uno/utils_mac/releases/tag/mousecraft-v0.2.0)** ·
+**[SHA-256 checksums →](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.0/MouseCraft-0.2.0-universal.sha256)**
 
 ## Screenshot Booster
 
@@ -45,111 +84,74 @@ documentation before downloading or building.
 
 **Capture → annotate → drag into your workflow.**
 
-A native screenshot app built with Swift, AppKit, and SwiftUI. Every capture
-stays pinned as a floating thumbnail until you dismiss it, ready to edit, copy,
-save, or drag into another application.
+Capture an area, a window, or a screen and keep it as a floating thumbnail.
+Annotate with arrows, shapes, text, highlighting, blur, and pixelation; zoom,
+crop, undo, and export as PNG or JPEG. Recognize English and Russian text and
+QR codes together using Apple Vision, entirely on your Mac.
 
-- **Capture your way.** Grab an area, a window, or the screen under the pointer.
-- **Recognize text and QR codes together.** Press `Control + Shift + 4`, select an area, and get editable text and decoded QR contents in a separate results window. Copy results or open detected web links in your browser. Processing stays on your Mac.
-- **Keep screenshots handy.** Manage a stack of thumbnails in your chosen screen corner.
-- **Add clear annotations.** Use arrows, shapes, text, freehand drawing, highlighting, blur, and pixelation.
-- **Keep edits flexible.** Move and resize annotations, undo changes, zoom, and crop while preserving the original.
-- **Export when ready.** Copy to the clipboard, drag into another app, or save as PNG or JPEG.
-
-The interface uses Liquid Glass and supports multiple displays with different
-backing scales. Screenshots and edits are stored locally; the app does not
-upload them to a server.
-
-### Install
-
-1. [Download the universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg).
-2. Open it and drag **Screenshot Booster** into **Applications**.
-3. Launch the app and find its camera icon in the menu bar.
-4. Grant **Screen Recording** permission when you first capture. Restart the app if macOS requests it.
-
-**Requires macOS 26 Tahoe or later.** The same download supports Apple Silicon
-and Intel. Developer tools are only needed when building from source.
-
-> **First launch:** the current release is signed ad-hoc and is not notarised by
-> Apple. If macOS blocks opening it, follow [Apple's instructions](https://support.apple.com/102445)
-> for an app you trust. Updating may require granting Screen Recording permission again.
-
-### Quick controls
+Install the [universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg)
+in Applications and grant Screen Recording when first capturing.
+**Requires macOS 26 Tahoe or later.** This release is also signed ad hoc and is
+not notarized.
 
 | Action | Default shortcut |
 | :--- | :--- |
-| Capture an area | `Control + Shift + 1` |
-| Capture a window | `Control + Shift + 2` |
-| Capture the screen under the pointer | `Control + Shift + 3` |
-| Select an area and recognize text and QR codes | `Control + Shift + 4` |
-| Cancel a capture | `Esc` |
+| Capture an area | Control + Shift + 1 |
+| Capture a window | Control + Shift + 2 |
+| Capture the screen under the pointer | Control + Shift + 3 |
+| Select an area and recognize text and QR codes | Control + Shift + 4 |
 
-Click a thumbnail to edit it, drag it into another app to share it, or right-click
-for more actions, including **Recognize Text & QR Codes…**. Capture and recognition
-shortcuts can be changed in **Settings → Shortcuts**.
-
-**[Full guide: tools, gestures, settings, and architecture →](screenshot_booster/README.md)**
+**[Full Screenshot Booster guide →](screenshot_booster/README.md)**
 
 ## Build and develop
 
-Clone the collection, then follow the instructions for the utility you want to work on:
+Install Xcode or Command Line Tools, then clone the repository:
 
-```bash
+```sh
 git clone https://github.com/Alt43-uno/utils_mac.git
 cd utils_mac
 ```
 
-<details>
-<summary><strong>Build Screenshot Booster</strong></summary>
+For MouseCraft (Swift 6.0+; tests require macOS 14+):
 
-You need macOS 26+ and Xcode or Command Line Tools with a macOS 26+ SDK.
-The application has no third-party library dependencies.
-
-```bash
-cd screenshot_booster
-./Scripts/build_app.sh                  # build for this Mac
-./Scripts/build_app.sh --install --run  # build, replace the installed app, and launch
-./Scripts/run_tests.sh                  # run the complete test suite
+```sh
+cd mousecraft
+./Scripts/run_tests.sh
+./Scripts/build_app.sh --universal
+./Scripts/make_installer.sh --no-build
 ```
 
-To create a universal installer:
+For Screenshot Booster (macOS 26+ SDK):
 
-```bash
+```sh
+cd screenshot_booster
+./Scripts/run_tests.sh
 ./Scripts/build_app.sh --universal
 ./Scripts/make_dmg.sh --no-build
 ```
 
-The app is written to `build/`; the DMG is written to `dist/`.
-Tests use isolated temporary storage, separate from your screenshots.
-
-</details>
-
-### Repository layout
+Builds go to each application's `build/`; installers go to `dist/`.
+The applications use system frameworks and have no third-party library dependencies.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for verification and release instructions.
 
 ```text
 utils_mac/
-├── screenshot_booster/   First utility: source, documentation, scripts, and tests
-├── docs/assets/          Images used in the documentation
-├── .github/              Build workflow and issue templates
-├── CONTRIBUTING.md       Development and contribution guide
-├── CHANGELOG.md          Release history and unreleased changes
-└── SECURITY.md           Security and private reporting policy
+├── mousecraft/           MouseCraft source, tests, installers, and full guide
+├── screenshot_booster/   Screenshot Booster source, tests, and full guide
+├── docs/assets/          Public app artwork
+├── .github/              Per-app CI and issue templates
+├── CHANGELOG.md          Release history for both applications
+├── CONTRIBUTING.md       Development and release guide
+└── SECURITY.md           Permissions, privacy, and vulnerability reporting
 ```
 
-New utilities will get their own directories and entries in the catalog above.
-The current GitHub Actions workflow checks repository privacy, builds and tests
-Screenshot Booster, and uploads its DMG as a build artifact. It runs on
-GitHub-hosted macOS machines.
+## Feedback and contributions
 
-## Ideas, feedback, and contributions
-
-Have an idea for another Mac utility, or found a problem with an existing one?
 [Open an issue](https://github.com/Alt43-uno/utils_mac/issues/new/choose) and
-describe the workflow you want to improve.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Report
-vulnerabilities privately using the guidance in [SECURITY.md](SECURITY.md).
+include the application name, version, macOS version, and steps to reproduce.
+For MouseCraft, include your mouse model and the connection status.
+Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-[MIT](LICENSE).
+Both applications are available under the [MIT license](LICENSE).

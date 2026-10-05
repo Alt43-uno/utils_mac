@@ -1,9 +1,11 @@
-name: Build
+name: Screenshot Booster
 
 on:
   push:
     branches: [main]
+    paths: ['screenshot_booster/**', '.github/workflows/build.yml', 'LICENSE']
   pull_request:
+    paths: ['screenshot_booster/**', '.github/workflows/build.yml', 'LICENSE']
   workflow_dispatch:
 
 permissions:

@@ -6,7 +6,32 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-## [1.1.0] — 2026-09-14
+## [MouseCraft 0.2.0] — 2026-10-05
+
+First public release of MouseCraft, the second application in utils_mac.
+
+### Added
+
+- Universal DMG and PKG installers for Apple Silicon and Intel, with SHA-256 checksums.
+- Smooth wheel scrolling with speed, direction, precision, and modifier controls.
+- Button assignments, holds, directional gestures, and presets for three- and five-button mice.
+- An independent button/gesture switch that preserves native middle-button panning while scrolling stays enabled.
+- Per-app profiles, JSON import/export, menu bar pause, and launch at login.
+- A native macOS settings toolbar and grouped forms, ⌘1–⌘5 navigation, accessible controls, and reduced-motion/transparency support.
+- Connection status, permission guidance, automatic permission checks, and event diagnostics.
+- Experimental native pinch, Smart Zoom, swipes, and phased scrolling.
+- 43 automated tests for configuration, scrolling, gesture routing, button bypass, and native event decoding.
+
+### Compatibility
+
+- Targets macOS 13+. Automated tests require macOS 14+ and Swift Testing.
+- Continuous input from trackpads, high-resolution wheels, and Magic Mouse passes through unchanged.
+- Interactive Spaces transitions and per-device profiles are not implemented.
+- Ad hoc signing; no Developer ID notarization. macOS permissions must be granted manually.
+
+
+
+## [Screenshot Booster 1.1.0] — 2026-09-14
 
 ### Added
 
@@ -30,7 +55,7 @@ All notable changes to this project are documented here. The format follows
 - Reserve capture state before asynchronous work and keep recognition callbacks
   scoped to their capture so cancellation cannot affect a later screenshot.
 
-## [1.0.2] — 2026-09-08
+## [Screenshot Booster 1.0.2] — 2026-09-08
 
 ### Fixed
 
@@ -49,7 +74,7 @@ All notable changes to this project are documented here. The format follows
   issue and pull request templates.
 - An English utility catalog with installation and development instructions.
 
-## [1.0.1] — 2026-09-08
+## [Screenshot Booster 1.0.1] — 2026-09-08
 
 - Fix displaced screenshot content and exposed black areas in the editor by
   preserving AppKit's drawing transform.
@@ -57,7 +82,7 @@ All notable changes to this project are documented here. The format follows
   when the editor's backing properties change.
 - Publish a universal DMG for Apple Silicon and Intel.
 
-## [1.0] — 2026-09-07
+## [Screenshot Booster 1.0] — 2026-09-07
 
 Initial version of **Screenshot Booster**.
 

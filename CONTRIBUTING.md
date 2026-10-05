@@ -1,71 +1,83 @@
-# Contributing
+# Contributing to utils_mac
 
-Thanks for taking a look. Issues and pull requests are welcome.
+This repository contains independent macOS applications. Keep changes scoped to
+the affected application and name it in issues and pull requests.
 
-## Getting set up
+## MouseCraft
 
-You need **macOS 26 (Tahoe)** and the Xcode command line tools
-(`xcode-select --install`). There are no other dependencies.
+Use Swift 6.0+ with Xcode or Command Line Tools. The application targets macOS 13+;
+Swift Testing requires macOS 14+ on the test machine.
 
-```bash
-cd screenshot_booster
-./Scripts/build_app.sh --install --run   # build, install to /Applications, launch
-./Scripts/run_tests.sh                   # the checks described below
-./Scripts/make_dmg.sh                    # a distributable disk image
+```sh
+cd mousecraft
+./Scripts/run_tests.sh
+./Scripts/build_app.sh --universal
+./Scripts/make_installer.sh --no-build
 ```
 
-Builds are signed ad-hoc, which means macOS treats every rebuild as a different
-application and asks for Screen Recording permission again. The app's own alert
-explains this; the short version is to allow it in System Settings and then use
-the **Quit and Reopen** button. Always run the copy in `/Applications` rather
-than the one in `build/` — two copies of the same bundle identifier each get
-their own permission grant, which looks like the app asking forever.
+`--debug` builds without release optimization; omit `--universal` for just the
+current Mac's architecture. Set `MOUSECRAFT_SDK` to choose an installed SDK and
+`CODESIGN_IDENTITY` to choose a signing certificate. The toolchain helper can
+work around mismatched CLT interfaces using a local copy; system files are not changed.
 
-`swift build` may fail on machines without full Xcode: the standalone command
-line tools ship a `PackageDescription` module that does not match their SwiftPM
-library. `Package.swift` is there so the sources open as a package in Xcode;
-`Scripts/build_app.sh` drives `swiftc` directly and always works.
+Core tests cover configuration migration and validation, scroll transformations,
+smoothing, gesture routing, button bypass, and AppKit native-event decoding.
+Tests never post input events or grant permissions. Delivery to applications,
+physical mice, sleep/wake, and permission changes need manual checks; report the
+mouse model and what you actually verified.
 
-## Tests
+For installation, quit the running app and use `Scripts/install_app.sh --no-build`.
+Run the copy in Applications and grant Accessibility and Input Monitoring to that
+copy. Ad hoc rebuilds can require granting permissions again. Always preserve
+middle-button down/drag/up events when button processing is disabled.
 
-`Scripts/run_tests.sh` compiles the sources together with `Tests/` and runs a
-set of checks that need no test framework: rendering output, annotation
-geometry, hit testing, zoom and pan maths, thumbnail layout, and library
-round-trips. Anything that changes the canvas, the renderer or the panel layout
-should keep them passing, and new behaviour in those areas is worth a new check.
+## Screenshot Booster
 
-Storage checks use a unique temporary directory and clean up afterwards. The
-test build cannot write to the application's screenshot library or drag cache.
-Use `./Scripts/run_tests.sh --rendering-only` for just the rendering and editor
-checks.
+Use macOS 26+ and a macOS 26+ SDK.
 
-The parts that cannot be checked this way are the ones that depend on the
-compositor — Liquid Glass surfaces do not appear in offscreen renders — and
-anything that needs Screen Recording permission. Those need a human looking at
-the screen, so please say what you verified by hand in the pull request.
+```sh
+cd screenshot_booster
+./Scripts/run_tests.sh
+./Scripts/build_app.sh --universal
+./Scripts/make_dmg.sh --no-build
+```
 
-## Style
+Its rendering, geometry, annotation, recognition, and storage tests use isolated
+fixtures. Screen Recording and composited Liquid Glass behavior require manual
+checks. See [the application's guide](screenshot_booster/README.md).
 
-Match the surrounding code. A few conventions the codebase follows:
+## Style and privacy
 
-- Everything user-facing is `@MainActor`; only expensive isolated work (image
-  encoding, file writes) hops to a background task.
-- Comments explain *why*, especially where something looks arbitrary — most of
-  the odd-looking choices in the drawing code are there because they were
-  measured, and the comment says so.
-- No files that sprawl. When a type grows past a few hundred lines, its input
-  handling or drawing tends to move to a `Type+Aspect.swift` extension.
-- No third-party dependencies.
+- Use system frameworks and native platform controls; there are no third-party libraries.
+- Match the surrounding Swift code and explain non-obvious decisions in comments.
+- Use meaningful regression checks for input handling, persistence, or rendering changes.
+- Use your GitHub `noreply` email for commits.
+- Before pushing, run `python3 screenshot_booster/Scripts/check_privacy.py` from the root.
+  It checks commit identities, local home paths, Finder metadata, and common secret formats.
+- Do not commit personal screenshots, local settings, databases, credentials, or build products.
+  Documentation artwork must contain only public app content.
 
-## Commits and pull requests
+Write imperative commit subjects and explain the problem, resulting behavior,
+and validation in pull requests. CI builds each application separately and runs
+a repository-wide privacy check.
 
-Use your GitHub `noreply` email for commits. Before pushing, run
-`python3 screenshot_booster/Scripts/check_privacy.py` from the repository root.
-CI checks the published history for non-noreply identities, Finder metadata,
-local home paths, and common secret formats. Do not commit screenshots, local
-databases, credentials, or personal data; this check cannot detect every case.
+## Publishing MouseCraft
 
-Write commit subjects in the imperative mood ("Add scrolling capture"), and say
-in the body why the change is needed rather than restating the diff. For pull
-requests, describe what you changed, how you verified it, and — if it touches
-drawing — any before and after numbers.
+MouseCraft tags use `mousecraft-vVERSION`, independent of Screenshot Booster's
+existing tags. Update `mousecraft/Resources/Info.plist`, the changelog, and the
+current download links together. Build and test the exact commit being tagged.
+
+```sh
+cd mousecraft
+./Scripts/run_tests.sh
+./Scripts/build_app.sh --universal
+./Scripts/make_installer.sh --no-build
+lipo build/MouseCraft.app/Contents/MacOS/MouseCraft -verify_arch arm64
+lipo build/MouseCraft.app/Contents/MacOS/MouseCraft -verify_arch x86_64
+codesign --verify --deep --strict build/MouseCraft.app
+```
+
+Publish the universal DMG, PKG, and `.sha256` file, along with notes describing
+compatibility, permissions, signing status, and experimental features. Do not
+publish an architecture-specific build under a `universal` filename. Public
+releases currently use ad hoc signing and are not notarized.

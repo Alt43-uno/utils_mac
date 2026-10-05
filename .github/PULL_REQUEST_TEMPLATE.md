@@ -1,18 +1,18 @@
-## What this changes
+## Application and change
 
-<!-- What problem does this solve? Why this approach? -->
+<!-- Name the application and explain the problem and resulting behavior. -->
 
-## How it was verified
+## Verification
 
-<!-- Which of Scripts/run_tests.sh passed, and what you checked by hand.
-     Liquid Glass and anything needing Screen Recording only show up on a real
-     screen, so say what you looked at. -->
+- [ ] Relevant app tests pass (`mousecraft/Scripts/run_tests.sh` or `screenshot_booster/Scripts/run_tests.sh`)
+- [ ] App builds; universal builds verified if packaging changed
+- [ ] Repository privacy check passes
+- [ ] Manual checks described below
 
-- [ ] `./Scripts/run_tests.sh` passes
-- [ ] Built and ran the app (`./Scripts/build_app.sh --install --run`)
-- [ ] Checked by hand:
+<!-- MouseCraft: mouse model, permissions, scroll/button behavior, profiles.
+     Screenshot Booster: capture/recognition, displays, editor behavior.
+     UI changes: what was checked visually and with keyboard navigation. -->
 
 ## Notes
 
-<!-- Performance numbers before/after if this touches drawing, follow-ups,
-     anything a reviewer should know. -->
+<!-- Compatibility, performance, or limitations that help review the change. -->

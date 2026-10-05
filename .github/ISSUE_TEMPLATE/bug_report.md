@@ -1,8 +1,12 @@
 ---
 name: Bug report
-about: Something does not work the way it should
+about: Report a problem in MouseCraft or Screenshot Booster
 labels: bug
 ---
+
+**Application and version**
+
+<!-- MouseCraft or Screenshot Booster; include the app's version. -->
 
 **What happened**
 
@@ -17,12 +21,23 @@ labels: bug
 **Environment**
 
 - macOS version:
-- Mac model (Apple silicon or Intel):
-- Display setup (single/multiple, Retina, scaling):
-- App version (Settings › About):
+- Mac model (Apple Silicon or Intel):
+- Affected application or website:
+
+**For MouseCraft**
+
+- Mouse model and connection type (USB / Bluetooth / receiver):
+- Number of buttons:
+- MouseCraft connection status (Overview / Обзор):
+- Are button gestures enabled? Any app-specific profile?
+- Is another mouse utility running?
+
+**For Screenshot Booster**
+
+- Display setup (single / multiple, Retina, scaling):
+- Screen Recording permission status:
 
 **Anything else**
 
-<!-- Screenshots help. If the app misbehaved rather than crashed, relevant lines
-     from Console.app filtered by subsystem `com.screenshotbooster.app` are
-     useful. -->
+<!-- Share only non-sensitive app content. Do not attach personal settings,
+     input activity, private screenshots, or credentials. -->

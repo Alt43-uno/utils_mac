@@ -1,0 +1,33 @@
+name: MouseCraft
+on:
+  push:
+    branches: [main]
+    paths: ['mousecraft/**', '.github/workflows/mousecraft.yml', 'LICENSE']
+  pull_request:
+    paths: ['mousecraft/**', '.github/workflows/mousecraft.yml', 'LICENSE']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: mousecraft
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test core and native event decoding
+        run: ./Scripts/run_tests.sh
+      - name: Build universal app (Apple Silicon and Intel)
+        run: ./Scripts/build_app.sh --universal
+      - name: Create DMG and PKG installers
+        run: ./Scripts/make_installer.sh --no-build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MouseCraft-installers
+          path: |
+            mousecraft/dist/*.dmg
+            mousecraft/dist/*.pkg
+            mousecraft/dist/*.sha256
+          if-no-files-found: error
