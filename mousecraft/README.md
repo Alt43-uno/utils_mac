@@ -1,4 +1,11 @@
-# MouseCraft
+# MouseCraft — Free, open-source Mac Mouse Fix alternative
+
+MouseCraft is an MIT-licensed macOS mouse utility for smooth wheel scrolling,
+mouse button remapping, gestures, and per-app profiles. Universal DMG and PKG
+installers support Apple Silicon and Intel on macOS 13+. The app interface is in
+English; this detailed guide is in Russian. MouseCraft is an independent early
+release: continuous input passes through unchanged, native gestures are
+experimental, and interactive Spaces transitions are not yet implemented.
 
 Бесплатная утилита для колёсных мышей на macOS: плавная прокрутка, назначения кнопок,
 жесты и профили приложений. Своя реализация на Swift, AppKit и SwiftUI; лицензия MIT

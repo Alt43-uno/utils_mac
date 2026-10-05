@@ -1,4 +1,4 @@
-<h1 align="center">utils_mac</h1>
+<h1 align="center">utils_mac — Free, open-source macOS apps</h1>
 
 <p align="center">
   <strong>Native utilities for your Mac.</strong><br>
@@ -18,6 +18,12 @@
   <a href="CHANGELOG.md">Changelog</a>
 </p>
 
+**utils_mac** is a collection of free, open-source Mac utilities. **MouseCraft**
+is a Mac Mouse Fix alternative for smooth mouse-wheel scrolling, button remapping,
+and mouse gestures. **Screenshot Booster** is a native screenshot and annotation
+app with offline OCR and QR code recognition. Both apps use Swift, AppKit, and
+SwiftUI, run locally, and are released under the MIT license.
+
 ## Applications
 
 Each application has its own source, requirements, version, and downloads.
@@ -34,8 +40,12 @@ Universal installers include both Apple Silicon and Intel binaries.
 
 **Make your wheel mouse feel at home on macOS.**
 
-MouseCraft is a free mouse utility with a native settings window and a menu bar
-control. No trial, subscription, account, telemetry, or license checks.
+MouseCraft is a **free, open-source Mac Mouse Fix alternative** for standard
+wheel mice on macOS 13 or later. It combines smooth scrolling, mouse button
+remapping, mouse gestures, and per-app profiles in a native settings window with
+a menu bar control. No trial, subscription, account, telemetry, or license checks.
+This is an early release; see the compatibility limits below before choosing it
+as your mouse utility.
 
 - **Smooth scrolling:** choose the feel, speed, direction, and slow-wheel precision.
 - **Wheel modifiers:** Shift for horizontal scrolling, Command for zoom, Control
