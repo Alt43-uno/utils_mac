@@ -4,6 +4,10 @@ about: Suggest something the app should do
 labels: enhancement
 ---
 
+**Application**
+
+<!-- DiskBloom, MouseCraft, or Screenshot Booster. -->
+
 **What you are trying to do**
 
 <!-- The task, not the feature. It often turns out there is a better fit than

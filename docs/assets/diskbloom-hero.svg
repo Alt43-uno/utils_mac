@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title description">
+<title id="title">DiskBloom — See your space. Find your room.</title>
+<desc id="description">Original DiskBloom artwork: a pastel radial disk map on a deep navy background. Native disk analysis for macOS.</desc>
+<defs>
+<linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#182238"/><stop offset="1" stop-color="#26364F"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#6BDDBA" stop-opacity=".12"/><stop offset="1" stop-color="#6BDDBA" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1280" height="520" rx="24" fill="url(#background)"/>
+<circle cx="1000" cy="260.0" r="340" fill="url(#glow)"/>
+<g fill="none" stroke="#A6B5D0" stroke-opacity=".08"><circle cx="990" cy="260.0" r="264"/><circle cx="990" cy="260.0" r="285"/></g>
+<g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+<text x="72" y="122.0" fill="#6DE2C1" font-size="15" font-weight="600" letter-spacing="3">NATIVE DISK ANALYSIS FOR MAC</text>
+<text x="68" y="205.0" fill="#EEF3FD" font-size="72" font-weight="700" letter-spacing="-3">DiskBloom</text>
+<text x="72" y="268.0" fill="#EEF3FD" font-size="32" font-weight="500" letter-spacing="-.5">See your space. Find your room.</text>
+<text x="72" y="317.0" fill="#A6B5D0" font-size="21">Explore your disks. Review your files.</text>
+<text x="72" y="348.0" fill="#A6B5D0" font-size="21">Make space for what matters.</text>
+<rect x="72" y="387.0" width="265" height="38" rx="19" fill="#6BDDBA" fill-opacity=".10" stroke="#6BDDBA" stroke-opacity=".24"/>
+<text x="92" y="412.0" fill="#6DE2C1" font-size="14" font-weight="600">macOS 14+  ·  Free &amp; open source</text>
+</g>
+<path d="M 992.00 160.02 A 100 100 0 0 1 1059.28 187.89 L 1038.50 209.52 A 70 70 0 0 0 991.40 190.01 Z" fill="#6BDDBA" opacity="1.000"/>
+<path d="M 992.70 125.03 A 135 135 0 0 1 1083.53 162.65 L 1062.75 184.28 A 105 105 0 0 0 992.10 155.02 Z" fill="#6BDDBA" opacity="0.945"/>
+<path d="M 993.40 90.03 A 170 170 0 0 1 1054.11 102.55 L 1042.80 130.34 A 140 140 0 0 0 992.80 120.03 Z" fill="#6BDDBA" opacity="0.890"/>
+<path d="M 1056.00 103.33 A 170 170 0 0 1 1107.78 137.41 L 1087.00 159.05 A 140 140 0 0 0 1044.35 130.98 Z" fill="#6BDDBA" opacity="0.890"/>
+<path d="M 1062.11 190.72 A 100 100 0 0 1 1089.98 258.00 L 1059.99 258.60 A 70 70 0 0 0 1040.48 211.50 Z" fill="#A5DE79" opacity="1.000"/>
+<path d="M 1087.35 166.47 A 135 135 0 0 1 1124.97 257.30 L 1094.98 257.90 A 105 105 0 0 0 1065.72 187.25 Z" fill="#A5DE79" opacity="0.945"/>
+<path d="M 1112.59 142.22 A 170 170 0 0 1 1146.67 194.00 L 1119.02 205.65 A 140 140 0 0 0 1090.95 163.00 Z" fill="#A5DE79" opacity="0.890"/>
+<path d="M 1147.45 195.89 A 170 170 0 0 1 1159.97 256.60 L 1129.97 257.20 A 140 140 0 0 0 1119.66 207.20 Z" fill="#A5DE79" opacity="0.890"/>
+<path d="M 1137.83 117.97 A 205 205 0 0 1 1167.40 157.26 L 1141.44 172.30 A 175 175 0 0 0 1116.19 138.76 Z" fill="#A5DE79" opacity="0.835"/>
+<path d="M 1168.62 159.40 A 205 205 0 0 1 1187.44 204.83 L 1158.54 212.91 A 175 175 0 0 0 1142.48 174.12 Z" fill="#A5DE79" opacity="0.835"/>
+<path d="M 1188.09 207.21 A 205 205 0 0 1 1194.96 255.90 L 1164.97 256.50 A 175 175 0 0 0 1159.10 214.93 Z" fill="#A5DE79" opacity="0.835"/>
+<path d="M 1089.98 262.00 A 100 100 0 0 1 1062.11 329.28 L 1040.48 308.50 A 70 70 0 0 0 1059.99 261.40 Z" fill="#EBD68A" opacity="1.000"/>
+<path d="M 1124.97 262.70 A 135 135 0 0 1 1087.35 353.53 L 1065.72 332.75 A 105 105 0 0 0 1094.98 262.10 Z" fill="#EBD68A" opacity="0.945"/>
+<path d="M 1159.97 263.40 A 170 170 0 0 1 1147.45 324.11 L 1119.66 312.80 A 140 140 0 0 0 1129.97 262.80 Z" fill="#EBD68A" opacity="0.890"/>
+<path d="M 1146.67 326.00 A 170 170 0 0 1 1112.59 377.78 L 1090.95 357.00 A 140 140 0 0 0 1119.02 314.35 Z" fill="#EBD68A" opacity="0.890"/>
+<path d="M 1194.96 264.10 A 205 205 0 0 1 1188.09 312.79 L 1159.10 305.07 A 175 175 0 0 0 1164.97 263.50 Z" fill="#EBD68A" opacity="0.835"/>
+<path d="M 1187.44 315.17 A 205 205 0 0 1 1168.62 360.60 L 1142.48 345.88 A 175 175 0 0 0 1158.54 307.09 Z" fill="#EBD68A" opacity="0.835"/>
+<path d="M 1167.40 362.74 A 205 205 0 0 1 1137.83 402.03 L 1116.19 381.24 A 175 175 0 0 0 1141.44 347.70 Z" fill="#EBD68A" opacity="0.835"/>
+<path d="M 1229.95 264.80 A 240 240 0 0 1 1221.90 321.81 L 1192.92 314.08 A 210 210 0 0 0 1199.96 264.20 Z" fill="#EBD68A" opacity="0.780"/>
+<path d="M 1221.15 324.59 A 240 240 0 0 1 1199.11 377.78 L 1172.97 363.05 A 210 210 0 0 0 1192.25 316.51 Z" fill="#EBD68A" opacity="0.780"/>
+<path d="M 1197.69 380.28 A 240 240 0 0 1 1163.07 426.28 L 1141.43 405.49 A 210 210 0 0 0 1171.73 365.24 Z" fill="#EBD68A" opacity="0.780"/>
+<path d="M 1059.28 332.11 A 100 100 0 0 1 992.00 359.98 L 991.40 329.99 A 70 70 0 0 0 1038.50 310.48 Z" fill="#F3AF91" opacity="1.000"/>
+<path d="M 1083.53 357.35 A 135 135 0 0 1 992.70 394.97 L 992.10 364.98 A 105 105 0 0 0 1062.75 335.72 Z" fill="#F3AF91" opacity="0.945"/>
+<path d="M 1107.78 382.59 A 170 170 0 0 1 1056.00 416.67 L 1044.35 389.02 A 140 140 0 0 0 1087.00 360.95 Z" fill="#F3AF91" opacity="0.890"/>
+<path d="M 1054.11 417.45 A 170 170 0 0 1 993.40 429.97 L 992.80 399.97 A 140 140 0 0 0 1042.80 389.66 Z" fill="#F3AF91" opacity="0.890"/>
+<path d="M 988.00 359.98 A 100 100 0 0 1 920.72 332.11 L 941.50 310.48 A 70 70 0 0 0 988.60 329.99 Z" fill="#E68DAC" opacity="1.000"/>
+<path d="M 987.30 394.97 A 135 135 0 0 1 896.47 357.35 L 917.25 335.72 A 105 105 0 0 0 987.90 364.98 Z" fill="#E68DAC" opacity="0.945"/>
+<path d="M 986.60 429.97 A 170 170 0 0 1 925.89 417.45 L 937.20 389.66 A 140 140 0 0 0 987.20 399.97 Z" fill="#E68DAC" opacity="0.890"/>
+<path d="M 924.00 416.67 A 170 170 0 0 1 872.22 382.59 L 893.00 360.95 A 140 140 0 0 0 935.65 389.02 Z" fill="#E68DAC" opacity="0.890"/>
+<path d="M 985.90 464.96 A 205 205 0 0 1 937.21 458.09 L 944.93 429.10 A 175 175 0 0 0 986.50 434.97 Z" fill="#E68DAC" opacity="0.835"/>
+<path d="M 934.83 457.44 A 205 205 0 0 1 889.40 438.62 L 904.12 412.48 A 175 175 0 0 0 942.91 428.54 Z" fill="#E68DAC" opacity="0.835"/>
+<path d="M 887.26 437.40 A 205 205 0 0 1 847.97 407.83 L 868.76 386.19 A 175 175 0 0 0 902.30 411.44 Z" fill="#E68DAC" opacity="0.835"/>
+<path d="M 917.89 329.28 A 100 100 0 0 1 890.02 262.00 L 920.01 261.40 A 70 70 0 0 0 939.52 308.50 Z" fill="#BD96EF" opacity="1.000"/>
+<path d="M 892.65 353.53 A 135 135 0 0 1 855.03 262.70 L 885.02 262.10 A 105 105 0 0 0 914.28 332.75 Z" fill="#BD96EF" opacity="0.945"/>
+<path d="M 867.41 377.78 A 170 170 0 0 1 833.33 326.00 L 860.98 314.35 A 140 140 0 0 0 889.05 357.00 Z" fill="#BD96EF" opacity="0.890"/>
+<path d="M 832.55 324.11 A 170 170 0 0 1 820.03 263.40 L 850.03 262.80 A 140 140 0 0 0 860.34 312.80 Z" fill="#BD96EF" opacity="0.890"/>
+<path d="M 842.17 402.03 A 205 205 0 0 1 812.60 362.74 L 838.56 347.70 A 175 175 0 0 0 863.81 381.24 Z" fill="#BD96EF" opacity="0.835"/>
+<path d="M 811.38 360.60 A 205 205 0 0 1 792.56 315.17 L 821.46 307.09 A 175 175 0 0 0 837.52 345.88 Z" fill="#BD96EF" opacity="0.835"/>
+<path d="M 791.91 312.79 A 205 205 0 0 1 785.04 264.10 L 815.03 263.50 A 175 175 0 0 0 820.90 305.07 Z" fill="#BD96EF" opacity="0.835"/>
+<path d="M 816.93 426.28 A 240 240 0 0 1 782.31 380.28 L 808.27 365.24 A 210 210 0 0 0 838.57 405.49 Z" fill="#BD96EF" opacity="0.780"/>
+<path d="M 780.89 377.78 A 240 240 0 0 1 758.85 324.59 L 787.75 316.51 A 210 210 0 0 0 807.03 363.05 Z" fill="#BD96EF" opacity="0.780"/>
+<path d="M 758.10 321.81 A 240 240 0 0 1 750.05 264.80 L 780.04 264.20 A 210 210 0 0 0 787.08 314.08 Z" fill="#BD96EF" opacity="0.780"/>
+<path d="M 890.02 258.00 A 100 100 0 0 1 917.89 190.72 L 939.52 211.50 A 70 70 0 0 0 920.01 258.60 Z" fill="#9099F1" opacity="1.000"/>
+<path d="M 855.03 257.30 A 135 135 0 0 1 892.65 166.47 L 914.28 187.25 A 105 105 0 0 0 885.02 257.90 Z" fill="#9099F1" opacity="0.945"/>
+<path d="M 820.03 256.60 A 170 170 0 0 1 832.55 195.89 L 860.34 207.20 A 140 140 0 0 0 850.03 257.20 Z" fill="#9099F1" opacity="0.890"/>
+<path d="M 833.33 194.00 A 170 170 0 0 1 867.41 142.22 L 889.05 163.00 A 140 140 0 0 0 860.98 205.65 Z" fill="#9099F1" opacity="0.890"/>
+<path d="M 920.72 187.89 A 100 100 0 0 1 988.00 160.02 L 988.60 190.01 A 70 70 0 0 0 941.50 209.52 Z" fill="#75BAF0" opacity="1.000"/>
+<path d="M 896.47 162.65 A 135 135 0 0 1 987.30 125.03 L 987.90 155.02 A 105 105 0 0 0 917.25 184.28 Z" fill="#75BAF0" opacity="0.945"/>
+<path d="M 872.22 137.41 A 170 170 0 0 1 924.00 103.33 L 935.65 130.98 A 140 140 0 0 0 893.00 159.05 Z" fill="#75BAF0" opacity="0.890"/>
+<path d="M 925.89 102.55 A 170 170 0 0 1 986.60 90.03 L 987.20 120.03 A 140 140 0 0 0 937.20 130.34 Z" fill="#75BAF0" opacity="0.890"/>
+<path d="M 847.97 112.17 A 205 205 0 0 1 887.26 82.60 L 902.30 108.56 A 175 175 0 0 0 868.76 133.81 Z" fill="#75BAF0" opacity="0.835"/>
+<path d="M 889.40 81.38 A 205 205 0 0 1 934.83 62.56 L 942.91 91.46 A 175 175 0 0 0 904.12 107.52 Z" fill="#75BAF0" opacity="0.835"/>
+<path d="M 937.21 61.91 A 205 205 0 0 1 985.90 55.04 L 986.50 85.03 A 175 175 0 0 0 944.93 90.90 Z" fill="#75BAF0" opacity="0.835"/>
+<circle cx="990" cy="260.0" r="49" fill="#182238" stroke="#6BDDBA" stroke-width="2"/><circle cx="990" cy="260.0" r="6" fill="#6BDDBA"/>
+</svg>

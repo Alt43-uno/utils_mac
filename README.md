@@ -1,38 +1,105 @@
-<h1 align="center">utils_mac — Free, open-source macOS apps</h1>
+<p align="center">
+  <img src="docs/assets/diskbloom-hero.svg" alt="DiskBloom — See your space. Find your room. Native disk analysis for Mac." width="100%">
+</p>
+
+<h1 align="center">DiskBloom</h1>
 
 <p align="center">
-  <strong>Native utilities for your Mac.</strong><br>
-  Smooth mouse control. Better screenshots. Free, local, and open source.
+  <strong>A clear view of your disks. A considered way to make space.</strong><br>
+  Native macOS disk analysis with an interactive radial map, file previews, and a cleanup collection.
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="MIT license"></a>
-  <a href="https://github.com/Alt43-uno/utils_mac/actions/workflows/mousecraft.yml"><img src="https://github.com/Alt43-uno/utils_mac/actions/workflows/mousecraft.yml/badge.svg" alt="MouseCraft build and tests"></a>
-  <a href="https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml"><img src="https://github.com/Alt43-uno/utils_mac/actions/workflows/build.yml/badge.svg" alt="Screenshot Booster build and tests"></a>
+  <a href="diskbloom/README.md"><img src="https://img.shields.io/badge/macOS-14%2B-182238?style=flat&amp;logo=apple&amp;logoColor=white" alt="macOS 14 or later"></a>
+  <a href="diskbloom/Package.swift"><img src="https://img.shields.io/badge/Swift-6.2%2B-F3AF91?style=flat&amp;logo=swift&amp;logoColor=182238" alt="Swift 6.2 or later"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-6BDDBA?style=flat" alt="MIT license"></a>
+  <a href="diskbloom/docs/FEATURE_PARITY.md"><img src="https://img.shields.io/badge/status-preview-EBD68A?style=flat" alt="In development"></a>
 </p>
 
 <p align="center">
-  <a href="#applications">Applications</a> ·
-  <a href="https://github.com/Alt43-uno/utils_mac/releases">Releases</a> ·
-  <a href="CONTRIBUTING.md">Contributing</a> ·
-  <a href="CHANGELOG.md">Changelog</a>
+  <a href="https://github.com/Alt43-uno/utils_mac/releases/tag/diskbloom-v0.1.0">Download preview</a> ·
+  <a href="#get-started">Get started</a> ·
+  <a href="diskbloom/README.md">Руководство · RU</a> ·
+  <a href="diskbloom/docs/FEATURE_PARITY.md">Feature status</a> ·
+  <a href="CONTRIBUTING.md">Contribute</a> ·
+  <a href="https://github.com/Alt43-uno/utils_mac/issues/new/choose">Feedback</a>
 </p>
 
-**utils_mac** is a collection of free, open-source Mac utilities. **MouseCraft**
-is a Mac Mouse Fix alternative for smooth mouse-wheel scrolling, button remapping,
-and mouse gestures. **Screenshot Booster** is a native screenshot and annotation
-app with offline OCR and QR code recognition. Both apps use Swift, AppKit, and
-SwiftUI, run locally, and are released under the MIT license.
+**DiskBloom** helps you understand what takes up space on your Mac and choose what
+can go. Explore local disks, external drives, mounted network volumes, and cloud
+accounts in a native SwiftUI and AppKit interface. Follow the radial map into a
+folder, preview a file, then collect the items you want to review before removal.
+
+Inspired by DaisyDisk's disk-analysis workflow, DiskBloom has its own code and
+artwork. It is an independent project and is not affiliated with DaisyDisk.
+This repository also contains [MouseCraft and Screenshot Booster](#applications).
+
+## Explore. Review. Make room.
+
+| Explore your space | Understand your files | Review before cleanup |
+| :--- | :--- | :--- |
+| Interactive sunburst map with hover details, folder navigation, and history. | Quick Look, Finder reveal, large-file lists, search, and file metadata. | Drag files into a collection, remove items from your selection, and confirm the final list. |
+| Multiple scans with progress and cancellation; metadata-only local scanning. | Allocated and logical sizes, hard links, sparse files, restricted folders, and cloud placeholders. | Trash by default for local files, a cancellable countdown, and checks for changes before removal. |
+
+- **Local and cloud:** Dropbox, Google Drive, OneDrive, and Box through an optional bundled rclone helper; multiple accounts and metadata scanning.
+- **Native Mac tools:** APFS snapshot inspection, a read-only administrator scanning worker, keyboard navigation, and Russian / English UI.
+- **Your reports:** export CSV or JSON to a location you choose. No analytics or automatic report uploads.
+
+## Get started
+
+**[Download DiskBloom 0.1.0 Preview for Apple Silicon](https://github.com/Alt43-uno/utils_mac/releases/download/diskbloom-v0.1.0/DiskBloom-0.1.0-arm64.dmg)** ·
+[ZIP](https://github.com/Alt43-uno/utils_mac/releases/download/diskbloom-v0.1.0/DiskBloom-0.1.0-arm64.zip) ·
+[SHA-256](https://github.com/Alt43-uno/utils_mac/releases/download/diskbloom-v0.1.0/DiskBloom-0.1.0-arm64.sha256)
+
+Open the DMG and drag DiskBloom into Applications. This preview is signed ad hoc
+and is not notarized; macOS may block its first launch. Follow
+[Apple's guidance for opening an app you trust](https://support.apple.com/102445).
+An Intel binary is not included in this release.
+
+To build from source, use macOS 14+ and Swift 6.2+ with Xcode or Command Line Tools:
+
+```sh
+git clone https://github.com/Alt43-uno/utils_mac.git
+cd utils_mac/diskbloom
+./Scripts/build_app.sh --cloud
+open build/DiskBloom.app
+```
+
+The build creates **`build/DiskBloom.app`** and **`build/DiskBloom.zip`**.
+`--cloud` downloads the pinned rclone helper from its official server and checks
+its SHA-256; omit it for a local-only bundle. No global installation is needed.
+To explore the interface with sample data:
+
+```sh
+open -n build/DiskBloom.app --args --demo
+```
+
+Demo mode cannot delete files. For real use, select a disk or folder, scan it,
+explore the map, and review unwanted files in the collection. Full Disk Access
+is granted manually in System Settings when needed.
+
+**Development status:** the main workflows are implemented, with 36 automated
+tests and local UI checks. Full DaisyDisk parity is not established. APFS clone
+block deduplication and individual snapshot size estimates remain incomplete;
+live cloud OAuth and administrator authorization need further verification.
+The current build is ad hoc signed, without Developer ID notarization, and is
+built for the host architecture; verification so far is on Apple Silicon.
+See the [complete feature-status table](diskbloom/docs/FEATURE_PARITY.md).
+
+**[Usage & shortcuts →](diskbloom/README.md)** ·
+**[Architecture →](diskbloom/docs/ARCHITECTURE.md)** ·
+**[Privacy & permissions →](SECURITY.md#diskbloom)**
 
 ## Applications
 
-Each application has its own source, requirements, version, and downloads.
-Universal installers include both Apple Silicon and Intel binaries.
+The projects share this repository, with separate source trees, requirements,
+versions, and build scripts. Existing releases for the other apps remain available.
 
-| Application | What it does | Requirements | Download |
+| Application | What it does | Requirements | Availability |
 | :--- | :--- | :--- | :--- |
-| **[MouseCraft](mousecraft/README.md)** | Smooth wheel scrolling, button gestures, and profiles for individual apps. | macOS 13+ | [0.2.1 · DMG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.dmg) · [PKG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.pkg) |
-| **[Screenshot Booster](screenshot_booster/README.md)** | Capture, annotate, pin, and recognize text and QR codes. | macOS 26+ | [1.1.0 · DMG](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg) |
+| **[DiskBloom](diskbloom/README.md)** | Visual disk analysis, file previews, and reviewed cleanup for local and cloud storage. | macOS 14+ | [0.1.0 Preview · arm64 DMG](https://github.com/Alt43-uno/utils_mac/releases/download/diskbloom-v0.1.0/DiskBloom-0.1.0-arm64.dmg) |
+| **[MouseCraft](mousecraft/README.md)** | Smooth wheel scrolling, button gestures, and per-app profiles. | macOS 13+ | [0.2.1 · universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.dmg) · [PKG](https://github.com/Alt43-uno/utils_mac/releases/download/mousecraft-v0.2.1/MouseCraft-0.2.1-universal.pkg) |
+| **[Screenshot Booster](screenshot_booster/README.md)** | Capture, annotate, pin, and recognize text and QR codes. | macOS 26+ | [1.1.0 · universal DMG](https://github.com/Alt43-uno/utils_mac/releases/download/v1.1.0/ScreenshotBooster-1.1.0-universal.dmg) |
 
 ## MouseCraft
 
@@ -122,6 +189,14 @@ git clone https://github.com/Alt43-uno/utils_mac.git
 cd utils_mac
 ```
 
+For DiskBloom (Swift 6.2+, macOS 14+):
+
+```sh
+cd diskbloom
+./Scripts/build_app.sh --cloud
+./Scripts/test.sh
+```
+
 For MouseCraft (Swift 6.0+; tests require macOS 14+):
 
 ```sh
@@ -141,16 +216,18 @@ cd screenshot_booster
 ```
 
 Builds go to each application's `build/`; installers go to `dist/`.
-The applications use system frameworks and have no third-party library dependencies.
+The applications use native system frameworks. DiskBloom optionally bundles rclone
+for cloud connections; its license is included in the app bundle.
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for verification and release instructions.
 
 ```text
 utils_mac/
+├── diskbloom/            DiskBloom source, tests, app packaging, and full guide
 ├── mousecraft/           MouseCraft source, tests, installers, and full guide
 ├── screenshot_booster/   Screenshot Booster source, tests, and full guide
 ├── docs/assets/          Public app artwork
 ├── .github/              Per-app CI and issue templates
-├── CHANGELOG.md          Release history for both applications
+├── CHANGELOG.md          Per-application release history
 ├── CONTRIBUTING.md       Development and release guide
 └── SECURITY.md           Permissions, privacy, and vulnerability reporting
 ```
@@ -164,4 +241,6 @@ Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-Both applications are available under the [MIT license](LICENSE).
+Original application code and artwork are available under the [MIT license](LICENSE).
+Cloud-enabled DiskBloom builds include rclone; see its
+[third-party notices](diskbloom/Resources/ThirdPartyNotices.txt).

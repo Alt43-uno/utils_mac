@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleName</key><string>DiskBloom</string>
+<key>CFBundleDisplayName</key><string>DiskBloom</string>
+<key>CFBundleIdentifier</key><string>com.diskbloom.app</string>
+<key>CFBundleExecutable</key><string>DiskBloom</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleShortVersionString</key><string>0.1.0</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleIconFile</key><string>AppIcon</string>
+<key>LSMinimumSystemVersion</key><string>14.0</string>
+<key>NSHighResolutionCapable</key><true/>
+<key>NSPrincipalClass</key><string>NSApplication</string>
+<key>NSHumanReadableCopyright</key><string>DiskBloom contributors</string>
+<key>NSDesktopFolderUsageDescription</key><string>DiskBloom measures the files you choose to scan on your Desktop.</string>
+<key>NSDocumentsFolderUsageDescription</key><string>DiskBloom measures the files you choose to scan in Documents.</string>
+<key>NSDownloadsFolderUsageDescription</key><string>DiskBloom measures files you choose to scan in Downloads.</string>
+<key>NSNetworkVolumesUsageDescription</key><string>DiskBloom scans network volumes you select.</string>
+<key>NSRemovableVolumesUsageDescription</key><string>DiskBloom scans external disks you select.</string>
+</dict></plist>

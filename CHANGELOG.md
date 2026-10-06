@@ -6,6 +6,31 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [DiskBloom 0.1.0] — 2026-10-06
+
+First DiskBloom prerelease. Apple Silicon build; macOS 14+ target.
+
+### Added
+
+- Native disk and folder analysis with an interactive radial map, navigation,
+  progress, cancellation, search, large-file lists, and allocated/logical sizes.
+- Quick Look, Finder reveal, a drag-and-drop cleanup collection, local Trash by
+  default, confirmation, cancellable countdown, and pre-removal change checks.
+- Read-only administrator scanning, APFS snapshot inspection, and purgeable
+  Time Machine snapshot management through system tools.
+- Optional bundled rclone for Dropbox, Google Drive, OneDrive, and Box; multiple
+  connections, remote metadata scans, and explicit selected-file previews.
+- CSV/JSON export, Russian and English UI, original icon and repository artwork.
+- 36 automated tests, including isolated real-rclone and worker checks.
+
+### Compatibility and limitations
+
+- Release archive is arm64, signed ad hoc, without Developer ID notarization.
+- Exact APFS clone block deduplication and per-snapshot sizes are not implemented.
+- Live cloud OAuth, administrator authorization, Intel, and macOS 14 require
+  further verification. Full DaisyDisk parity is not established.
+- See [DiskBloom feature status](diskbloom/docs/FEATURE_PARITY.md) for details.
+
 ## [MouseCraft 0.2.1] — 2026-10-05
 
 ### Changed

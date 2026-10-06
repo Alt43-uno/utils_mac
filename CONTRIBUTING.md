@@ -1,7 +1,38 @@
-# Contributing to utils_mac
+# Contributing to DiskBloom & the macOS utilities
 
 This repository contains independent macOS applications. Keep changes scoped to
 the affected application and name it in issues and pull requests.
+
+## DiskBloom
+
+Use macOS 14+ and Swift 6.2+. Work inside `diskbloom/`; keep the scanner, safety
+checks, and cloud helper independent of the UI.
+
+```sh
+cd diskbloom
+./Scripts/build_app.sh --cloud
+./Scripts/test.sh
+codesign --verify --deep --strict build/DiskBloom.app
+```
+
+Build before testing so worker and real-rclone integration checks have their
+executables available. Fixtures stay inside `.build`; never test removal on
+personal data. For interface work, use `open -n build/DiskBloom.app --args --demo`.
+Demo mode does not permit deletion.
+
+Describe manual verification of navigation, previews, collection review, and
+cancellation when changing these flows. Permission prompts, live OAuth, Intel,
+and minimum macOS compatibility require separate checks; do not infer them from
+unit tests. Changes to deletion must cover changed descendants, protected paths,
+and overlapping selections. Keep file contents out of scans and exported reports.
+See [architecture](diskbloom/docs/ARCHITECTURE.md) and
+[feature status](diskbloom/docs/FEATURE_PARITY.md).
+
+DiskBloom tags use `diskbloom-vVERSION`. Match `Resources/Info.plist`, release
+notes, and download links. The first release is an Apple Silicon prerelease;
+name architecture-specific archives explicitly and include SHA-256 checksums.
+Ad hoc signing is not Developer ID notarization. Include signing and feature
+limitations in every prerelease. Bundled rclone needs its third-party notices.
 
 ## MouseCraft
 
@@ -48,7 +79,8 @@ checks. See [the application's guide](screenshot_booster/README.md).
 
 ## Style and privacy
 
-- Use system frameworks and native platform controls; there are no third-party libraries.
+- Use system frameworks and native platform controls. DiskBloom uses an optional
+  rclone executable for cloud storage; document bundled dependencies and licenses.
 - Match the surrounding Swift code and explain non-obvious decisions in comments.
 - Use meaningful regression checks for input handling, persistence, or rendering changes.
 - Use your GitHub `noreply` email for commits.

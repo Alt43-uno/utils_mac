@@ -8,6 +8,35 @@ private channel before sharing details. Do not disclose vulnerabilities or
 credentials in public issues. Include the application, version, macOS version,
 and reproduction steps without sensitive screenshots or logs.
 
+## DiskBloom
+
+- **Scanning:** local scans read filesystem metadata, not file contents. Symlinks
+  are not followed; cloud scans query metadata through rclone. Reports stay in
+  memory unless exported by the user. Reports contain names and paths, so inspect
+  them before sharing.
+- **Permissions:** Full Disk Access is granted manually. Administrator scanning
+  uses a separate read-only worker and macOS authorization; it does not grant
+  privileged deletion or bypass privacy permissions.
+- **Removal:** local cleanup defaults to Trash and requires reviewed selection,
+  confirmation, and a cancellable countdown. Protected roots and system locations
+  are rejected. File identity and descendant metadata are checked again before
+  removal, but this is not a transactional filesystem lock. Cloud deletion follows
+  the provider's rules and may be permanent. Snapshot cleanup is limited to
+  purgeable Time Machine snapshots through system tools.
+- **Cloud credentials:** rclone OAuth configuration is stored in
+  `~/Library/Application Support/DiskBloom/rclone.conf`. Its directory uses `0700`
+  and completed configuration `0600`; tokens are not included in reports. Revoke
+  provider access in the provider's account settings when needed.
+- **Previews:** local previews use Quick Look. Explicit cloud previews download
+  only the selected file, up to 200 MB, into `~/Library/Caches/DiskBloom/Previews`.
+  The cache is cleared on normal exit and next launch.
+- **Network:** connected cloud accounts communicate with their providers through
+  rclone. Builds with `--cloud` fetch a pinned helper with SHA-256 verification.
+  DiskBloom has no analytics or automatic report uploads.
+
+See [the user guide](diskbloom/README.md) for behavior and
+[known limitations](diskbloom/docs/FEATURE_PARITY.md) before using a prerelease.
+
 ## MouseCraft
 
 - **Accessibility and Input Monitoring:** MouseCraft reads mouse input and changes
@@ -38,8 +67,8 @@ and reproduction steps without sensitive screenshots or logs.
 ## Release verification and support
 
 Use the newest release **for the affected application**, rather than assuming the
-repository's Latest badge refers to both apps. MouseCraft versions are identified
-by `mousecraft-vVERSION`; previous Screenshot Booster tags keep their existing names.
+repository's Latest badge refers to every app. DiskBloom versions use `diskbloom-vVERSION`, MouseCraft uses
+`mousecraft-vVERSION`; previous Screenshot Booster tags keep their existing names.
 The `main` branch may contain unreleased changes.
 
 MouseCraft releases include SHA-256 checksums for the installers. They verify file
