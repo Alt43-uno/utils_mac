@@ -20,6 +20,7 @@ jobs:
       - name: Build app with pinned cloud helper
         run: ./Scripts/build_app.sh --cloud
       - name: Test scanner, safety, worker, and real-rclone fixtures
+        timeout-minutes: 5
         run: ./Scripts/test.sh
       - name: Package and verify release archives
         run: ./Scripts/make_release.sh --no-build
