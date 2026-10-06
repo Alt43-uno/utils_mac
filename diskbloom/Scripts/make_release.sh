@@ -48,7 +48,11 @@ EOF
 ditto -c -k --keepParent "$app" "dist/$base.zip"
 image="$PWD/dist/$base.dmg"
 if [[ -e "$image" ]]; then rm "$image"; fi
-hdiutil create -volname "DiskBloom $version" -srcfolder "$staging" -format UDZO -ov "$image"
+# Size from logical bytes: compressed/sparse files can occupy less space on the
+# source volume than they need in the installer. Reserve room for filesystem data.
+staging_kib="$(du -skA "$staging" | awk '{print $1}')"
+image_mib=$(( (staging_kib * 5 / 4 + 1023) / 1024 + 32 ))
+hdiutil create -size "${image_mib}m" -fs HFS+ -volname "DiskBloom $version" -srcfolder "$staging" -format UDZO -ov "$image"
 hdiutil verify "$image"
 (cd dist && shasum -a 256 "$base.dmg" "$base.zip" > "$base.sha256")
 echo "Release assets: dist/$base.{dmg,zip,sha256}"
