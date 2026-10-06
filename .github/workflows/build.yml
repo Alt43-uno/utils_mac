@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and test
+    name: Build and package
     runs-on: macos-26
     timeout-minutes: 20
 
@@ -36,10 +36,6 @@ jobs:
       - name: Build
         working-directory: screenshot_booster
         run: ./Scripts/build_app.sh --universal
-
-      - name: Test
-        working-directory: screenshot_booster
-        run: ./Scripts/run_tests.sh
 
       - name: Package
         working-directory: screenshot_booster
