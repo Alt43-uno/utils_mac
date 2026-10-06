@@ -1,29 +1,39 @@
 <p align="center">
-  <img src="docs/assets/diskbloom-hero.svg" alt="DiskBloom — See your space. Find your room. Native disk analysis for Mac." width="100%">
+  <img src="docs/assets/mac-utilities-hero.svg" alt="utils_mac — DiskBloom, MouseCraft and Screenshot Booster. Three independent open-source macOS apps." width="100%">
 </p>
 
-<h1 align="center">DiskBloom</h1>
+<h1 align="center">utils_mac — Native apps for your Mac</h1>
 
 <p align="center">
-  <strong>A clear view of your disks. A considered way to make space.</strong><br>
-  Native macOS disk analysis with an interactive radial map, file previews, and a cleanup collection.
-</p>
-
-<p align="center">
-  <a href="diskbloom/README.md"><img src="https://img.shields.io/badge/macOS-14%2B-182238?style=flat&amp;logo=apple&amp;logoColor=white" alt="macOS 14 or later"></a>
-  <a href="diskbloom/Package.swift"><img src="https://img.shields.io/badge/Swift-6.2%2B-F3AF91?style=flat&amp;logo=swift&amp;logoColor=182238" alt="Swift 6.2 or later"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-6BDDBA?style=flat" alt="MIT license"></a>
-  <a href="diskbloom/docs/FEATURE_PARITY.md"><img src="https://img.shields.io/badge/status-preview-EBD68A?style=flat" alt="In development"></a>
+  <strong>Understand your disks. Enjoy your mouse. Capture your ideas.</strong><br>
+  Three independent apps, free and open source.
 </p>
 
 <p align="center">
-  <a href="https://github.com/Alt43-uno/utils_mac/releases/tag/diskbloom-v0.1.0">Download preview</a> ·
-  <a href="#get-started">Get started</a> ·
-  <a href="diskbloom/README.md">Руководство · RU</a> ·
-  <a href="diskbloom/docs/FEATURE_PARITY.md">Feature status</a> ·
+  <a href="diskbloom/README.md"><img src="https://img.shields.io/badge/DiskBloom-macOS%2014%2B-6BDDBA?style=flat" alt="DiskBloom: macOS 14 or later"></a>
+  <a href="mousecraft/README.md"><img src="https://img.shields.io/badge/MouseCraft-macOS%2013%2B-BD96EF?style=flat" alt="MouseCraft: macOS 13 or later"></a>
+  <a href="screenshot_booster/README.md"><img src="https://img.shields.io/badge/Screenshot%20Booster-macOS%2026%2B-75BAF0?style=flat" alt="Screenshot Booster: macOS 26 or later"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-A6B5D0?style=flat" alt="MIT license"></a>
+</p>
+
+<p align="center">
+  <a href="#applications">Applications</a> ·
+  <a href="https://github.com/Alt43-uno/utils_mac/releases">Releases</a> ·
+  <a href="#build-and-develop">Build</a> ·
   <a href="CONTRIBUTING.md">Contribute</a> ·
   <a href="https://github.com/Alt43-uno/utils_mac/issues/new/choose">Feedback</a>
 </p>
+
+**utils_mac** is a collection of native macOS utilities built with Swift, SwiftUI,
+and AppKit. **[DiskBloom](diskbloom/README.md)** visualizes disk usage and helps you
+review files before cleanup. **[MouseCraft](mousecraft/README.md)** brings smooth
+scrolling, button remapping, and gestures to wheel mice.
+**[Screenshot Booster](screenshot_booster/README.md)** captures and annotates
+screenshots with offline text and QR recognition.
+
+Each app has its own source tree, requirements, release version, and downloads.
+
+## DiskBloom
 
 **DiskBloom** helps you understand what takes up space on your Mac and choose what
 can go. Explore local disks, external drives, mounted network volumes, and cloud
@@ -32,7 +42,7 @@ folder, preview a file, then collect the items you want to review before removal
 
 Inspired by DaisyDisk's disk-analysis workflow, DiskBloom has its own code and
 artwork. It is an independent project and is not affiliated with DaisyDisk.
-This repository also contains [MouseCraft and Screenshot Booster](#applications).
+
 
 ## Explore. Review. Make room.
 

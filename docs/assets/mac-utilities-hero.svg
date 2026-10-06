@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title description">
+<title id="title">utils_mac — DiskBloom, MouseCraft and Screenshot Booster</title>
+<desc id="description">Three independent open-source macOS apps: visual disk analysis, smooth mouse control, and screenshots with annotation and OCR.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#182238"/><stop offset="1" stop-color="#26364F"/></linearGradient></defs>
+<rect width="1280" height="520" rx="24" fill="url(#bg)"/>
+<g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+<text x="64" y="67" fill="#6BDDBA" font-size="14" font-weight="600" letter-spacing="3">UTILS_MAC / NATIVE MAC APPS</text>
+<text x="60" y="141" fill="#EEF3FD" font-size="56" font-weight="700" letter-spacing="-2">Small tools. A better Mac.</text>
+<text x="64" y="184" fill="#A6B5D0" font-size="22">Three independent apps. Free and open source.</text>
+<rect x="64" y="210" width="372" height="256" rx="18" fill="#2A3750" stroke="#A6B5D0" stroke-opacity=".13"/>
+<path d="M 128.84 259.01 A 24 24 0 0 1 144.37 265.45 L 139.59 270.57 A 17 17 0 0 0 128.59 266.01 Z" fill="#6BDDBA"/>
+<path d="M 129.19 249.02 A 34 34 0 0 1 151.19 258.13 L 146.41 263.25 A 27 27 0 0 0 128.94 256.02 Z" fill="#6BDDBA"/>
+<path d="M 145.55 266.63 A 24 24 0 0 1 151.99 282.16 L 144.99 282.41 A 17 17 0 0 0 140.43 271.41 Z" fill="#A5DE79"/>
+<path d="M 152.87 259.81 A 34 34 0 0 1 161.98 281.81 L 154.98 282.06 A 27 27 0 0 0 147.75 264.59 Z" fill="#A5DE79"/>
+<path d="M 160.18 253.00 A 44 44 0 0 1 171.97 281.46 L 164.98 281.71 A 37 37 0 0 0 155.06 257.77 Z" fill="#A5DE79"/>
+<path d="M 151.99 283.84 A 24 24 0 0 1 145.55 299.37 L 140.43 294.59 A 17 17 0 0 0 144.99 283.59 Z" fill="#EBD68A"/>
+<path d="M 161.98 284.19 A 34 34 0 0 1 152.87 306.19 L 147.75 301.41 A 27 27 0 0 0 154.98 283.94 Z" fill="#EBD68A"/>
+<path d="M 144.37 300.55 A 24 24 0 0 1 128.84 306.99 L 128.59 299.99 A 17 17 0 0 0 139.59 295.43 Z" fill="#F3AF91"/>
+<path d="M 151.19 307.87 A 34 34 0 0 1 129.19 316.98 L 128.94 309.98 A 27 27 0 0 0 146.41 302.75 Z" fill="#F3AF91"/>
+<path d="M 158.00 315.18 A 44 44 0 0 1 129.54 326.97 L 129.29 319.98 A 37 37 0 0 0 153.23 310.06 Z" fill="#F3AF91"/>
+<path d="M 127.16 306.99 A 24 24 0 0 1 111.63 300.55 L 116.41 295.43 A 17 17 0 0 0 127.41 299.99 Z" fill="#E68DAC"/>
+<path d="M 126.81 316.98 A 34 34 0 0 1 104.81 307.87 L 109.59 302.75 A 27 27 0 0 0 127.06 309.98 Z" fill="#E68DAC"/>
+<path d="M 110.45 299.37 A 24 24 0 0 1 104.01 283.84 L 111.01 283.59 A 17 17 0 0 0 115.57 294.59 Z" fill="#BD96EF"/>
+<path d="M 103.13 306.19 A 34 34 0 0 1 94.02 284.19 L 101.02 283.94 A 27 27 0 0 0 108.25 301.41 Z" fill="#BD96EF"/>
+<path d="M 95.82 313.00 A 44 44 0 0 1 84.03 284.54 L 91.02 284.29 A 37 37 0 0 0 100.94 308.23 Z" fill="#BD96EF"/>
+<path d="M 104.01 282.16 A 24 24 0 0 1 110.45 266.63 L 115.57 271.41 A 17 17 0 0 0 111.01 282.41 Z" fill="#9099F1"/>
+<path d="M 94.02 281.81 A 34 34 0 0 1 103.13 259.81 L 108.25 264.59 A 27 27 0 0 0 101.02 282.06 Z" fill="#9099F1"/>
+<path d="M 111.63 265.45 A 24 24 0 0 1 127.16 259.01 L 127.41 266.01 A 17 17 0 0 0 116.41 270.57 Z" fill="#75BAF0"/>
+<path d="M 104.81 258.13 A 34 34 0 0 1 126.81 249.02 L 127.06 256.02 A 27 27 0 0 0 109.59 263.25 Z" fill="#75BAF0"/>
+<path d="M 98.00 250.82 A 44 44 0 0 1 126.46 239.03 L 126.71 246.02 A 37 37 0 0 0 102.77 255.94 Z" fill="#75BAF0"/>
+<circle cx="128" cy="283" r="10" fill="none" stroke="#6BDDBA"/>
+<text x="88" y="370" fill="#EEF3FD" font-size="27" font-weight="600" letter-spacing="-.6">DiskBloom</text>
+<text x="88" y="443" fill="#6BDDBA" font-size="14" font-weight="600">macOS 14+</text>
+<rect x="454" y="210" width="372" height="256" rx="18" fill="#2A3750" stroke="#A6B5D0" stroke-opacity=".13"/>
+<rect x="489" y="240" width="58" height="86" rx="29" fill="none" stroke="#BD96EF" stroke-width="3"/><path d="M 518 240 v 43 M 489 283 h 58" stroke="#BD96EF" stroke-width="2" fill="none"/><rect x="515" y="254" width="6" height="16" rx="3" fill="#BD96EF"/><path d="M 561 263 q 18 20 0 40" fill="none" stroke="#BD96EF" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+<text x="478" y="370" fill="#EEF3FD" font-size="27" font-weight="600" letter-spacing="-.6">MouseCraft</text>
+<text x="478" y="443" fill="#BD96EF" font-size="14" font-weight="600">macOS 13+</text>
+<rect x="844" y="210" width="372" height="256" rx="18" fill="#2A3750" stroke="#A6B5D0" stroke-opacity=".13"/>
+<rect x="872" y="252" width="78" height="62" rx="9" fill="none" stroke="#75BAF0" stroke-width="3"/><path d="M 883 301 l 19 -21 13 14 12 -9 14 16 M 943 245 v -11 h -16 M 878 322 v 10 h 16" fill="none" stroke="#75BAF0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="928" cy="269" r="5" fill="#75BAF0"/>
+<text x="868" y="370" fill="#EEF3FD" font-size="27" font-weight="600" letter-spacing="-.6">Screenshot Booster</text>
+<text x="868" y="443" fill="#75BAF0" font-size="14" font-weight="600">macOS 26+</text>
+</g></svg>
