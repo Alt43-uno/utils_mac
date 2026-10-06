@@ -21,7 +21,7 @@ jobs:
         run: ./Scripts/build_app.sh --cloud
       - name: Test scanner, safety, worker, and real-rclone fixtures
         timeout-minutes: 5
-        run: ./Scripts/test.sh
+        run: python3 Scripts/ci_tests.py
       - name: Package and verify release archives
         run: ./Scripts/make_release.sh --no-build
       - uses: actions/upload-artifact@v4
